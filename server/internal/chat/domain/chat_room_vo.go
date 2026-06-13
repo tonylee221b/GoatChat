@@ -18,8 +18,8 @@ type RoomName struct {
 type MemberRoleType string
 
 const (
-	MemberRoleTypeOwner   RoomType = "owner"
-	MemberRoleTypeMember  RoomType = "member"
+	MemberRoleTypeOwner  RoomType = "owner"
+	MemberRoleTypeMember RoomType = "member"
 )
 
 type MessageId struct {
