@@ -2,8 +2,8 @@ version: "2"
 sql:
   - name: "chat"
     engine: "postgresql"
-    schema: "db/migrations"
-    queries: "internal/chat/adapter/out/query"
+    schema: "db/migration"
+    queries: "db/query/chat"
     gen:
       go:
         package: "chatsqlc"
