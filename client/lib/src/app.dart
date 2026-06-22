@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'features/chat/presentation/chat_home_page.dart';
+import 'features/onboarding/presentation/nickname_entry_page.dart';
 import 'theme/app_theme.dart';
 
 class MyApp extends StatelessWidget {
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       title: 'GoatChat',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const ChatHomePage(),
+      home: const NicknameEntryPage(),
     );
   }
 }

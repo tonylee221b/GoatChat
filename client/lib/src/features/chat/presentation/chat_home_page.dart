@@ -5,22 +5,24 @@ import 'widgets/chat_filter_tabs.dart';
 import 'widgets/chat_home_header.dart';
 
 class ChatHomePage extends StatelessWidget {
-  const ChatHomePage({super.key});
+  const ChatHomePage({required this.nickname, super.key});
+
+  final String nickname;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const SafeArea(
+      body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 16, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ChatHomeHeader(),
-              SizedBox(height: 24),
-              ChatFilterTabs(),
-              SizedBox(height: 20),
-              Expanded(child: SizedBox()),
+              ChatHomeHeader(nickname: nickname),
+              const SizedBox(height: 24),
+              const ChatFilterTabs(),
+              const SizedBox(height: 20),
+              const Expanded(child: SizedBox()),
             ],
           ),
         ),
