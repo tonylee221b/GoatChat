@@ -1,15 +1,23 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type ChatRoom struct {
-	id     uuid.UUID
-	member RoomMember
+	ID          uuid.UUID
+	RoomType    RoomType
+	RoomName    RoomName
+	Description RoomDescription
+	OwnerId     RoomOwnerId
 }
 
-func NewChatroom(member RoomMember) (*ChatRoom, error) {
+func NewChatroom(rt RoomType, rn RoomName, d RoomDescription, oid RoomOwnerId) (*ChatRoom, error) {
 	return &ChatRoom{
-		id:     uuid.New(),
-		member: member,
+		ID:          uuid.New(),
+		RoomType:    rt,
+		RoomName:    rn,
+		Description: d,
+		OwnerId:     oid,
 	}, nil
 }

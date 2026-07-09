@@ -1,9 +1,24 @@
 package in
 
-type ChatRouter struct{}
+import (
+	"github.com/go-chi/chi/v5"
+)
 
-// Chi Router -> "/api/v1/hello/{}"
-func NewChatRouter() {
+type ChatRouter struct {
+	h *ChatHandler
 }
 
-func dflJKSJDflkjsdlfkjs df
+const (
+	ChatRouteGroup     = "/chat"
+	ChatroomRouteGruop = "/chatroom"
+)
+
+func NewChatRouter(h *ChatHandler) *ChatRouter {
+	return &ChatRouter{h}
+}
+
+func (cr *ChatRouter) route(r *chi.Mux) {
+	r.Route(ChatRouteGroup, func(r chi.Router) {
+		r.Post(string(ChatroomRouteGruop), cr.h.CreateChatroom)
+	})
+}
