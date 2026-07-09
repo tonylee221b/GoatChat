@@ -4,18 +4,20 @@ import '../../../../theme/app_theme.dart';
 import 'circle_icon_button.dart';
 
 class ChatHomeHeader extends StatelessWidget {
-  const ChatHomeHeader({super.key});
+  const ChatHomeHeader({required this.nickname, super.key});
+
+  final String nickname;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hello,',
+                'Hello, $nickname',
                 style: TextStyle(color: AppColors.mutedText, fontSize: 14),
               ),
               SizedBox(height: 4),
