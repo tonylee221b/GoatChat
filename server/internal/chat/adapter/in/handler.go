@@ -75,11 +75,7 @@ func (h *ChatHandler) CreateChatroom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	room, err := h.crSvc.CreateChatroom(r.Context(),
-		rt,
-		rn,
-		rd,
-		oid)
+	room, err := h.crSvc.CreateChatroom(r.Context(), rt, rn, rd, oid)
 
 	if err != nil {
 		slog.Error(ErrCreateCr)
