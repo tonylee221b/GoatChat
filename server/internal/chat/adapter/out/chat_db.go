@@ -13,6 +13,7 @@ type ChatPgRepository struct {
 	q chatsqlc.Queries
 }
 
+// TODO (mgyoo) : pgxpool, tx 추가시 변경예정
 func NewChatPgRepository(db chatsqlc.DBTX) *ChatPgRepository {
 	return &ChatPgRepository{
 		q: *chatsqlc.New(db),

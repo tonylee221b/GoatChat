@@ -30,6 +30,7 @@ func main() {
 	ctx := context.Background()
 
 	databaseURL := os.Getenv("DATABASE_URL")
+	// TODO (mgyoo) : 추후 config파일로 분리
 	dbConn, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
 		log.Fatal(err)
