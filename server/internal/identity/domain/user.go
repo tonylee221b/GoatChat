@@ -7,26 +7,22 @@ import (
 )
 
 type User struct {
-	id          uuid.UUID
-	username    Username
-	phoneNumber PhoneNumber
-	credential  UserCredential
-	createdAt   time.Time
-	updatedAt   time.Time
-	deletedAt   time.Time
+	ID          uuid.UUID
+	Username    Username
+	Email       Email
+	PhoneNumber PhoneNumber
+	Credential  UserCredential
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   time.Time
 }
 
-func NewUser(username, phoneNumber string) (*User, error) {
-	name, err := NewUsername(username)
-	if err != nil {
-		return nil, err
-	}
-
+func NewUser(username Username) (*User, error) {
 	return &User{
-		id:        uuid.New(),
-		username:  name,
-		createdAt: time.Now(),
-		updatedAt: time.Now(),
+		ID:        uuid.New(),
+		Username:  username,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}, nil
 }
 
@@ -36,7 +32,7 @@ func (u *User) UpdatePhoneNumber(phoneNumber string) error {
 		return err
 	}
 
-	u.phoneNumber = pn
-	u.updatedAt = time.Now()
+	u.PhoneNumber = pn
+	u.UpdatedAt = time.Now()
 	return nil
 }

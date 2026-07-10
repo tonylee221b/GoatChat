@@ -8,6 +8,7 @@ import (
 const (
 	ErrorBlankUsername            = "username cannot be blank"
 	ErrorInvalidPhoneNumberFormat = "invalid phone number format"
+	ErrorInvalidEmailFormat       = "invalid email format"
 )
 
 type UserStatus string
@@ -43,4 +44,16 @@ func NewPhoneNumber(number string) (PhoneNumber, error) {
 	}
 
 	return PhoneNumber{Value: number}, nil
+}
+
+type Email struct {
+	Value string
+}
+
+func NewEmail(email string) (Email, error) {
+	if email == "" {
+		return Email{}, errors.New(ErrorInvalidEmailFormat)
+	}
+
+	return Email{Value: email}, nil
 }

@@ -8,14 +8,22 @@ import (
 	"os"
 	"time"
 
-	identityRouter "GoatChat/GoatChat/internal/identity/adapter/in"
+	"GoatChat/GoatChat/internal/identity/adapter/in"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+const APIVersion = "/api/v1"
+
 func main() {
+	ctx := context.Background()
+	pool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -43,6 +51,8 @@ func main() {
 	}
 	r2 := in.BoostrapChat(dbConn)
 	r.Mount("/", r2)
+	ir := in.BootstrapIdentity(pool)
+	r.Mount(APIVersion, ir)
 
 	http.ListenAndServe(":8888", r)
 }
