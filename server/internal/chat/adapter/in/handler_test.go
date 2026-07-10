@@ -29,11 +29,8 @@ func TestCreateChatroom(t *testing.T) {
 				tt.setupMock(m)
 			}
 
-			svc, err := service.NewChatService(m)
-			require.NoError(t, err)
-
-			h, err := NewChatHandler(*svc)
-			require.NoError(t, err)
+			svc := service.NewChatService(m)
+			h := NewChatHandler(*svc)
 
 			rec := httptest.NewRecorder()
 			h.CreateChatroom(rec, req)

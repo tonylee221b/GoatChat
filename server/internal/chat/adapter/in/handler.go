@@ -24,8 +24,8 @@ type ChatroomCreateResponse struct {
 	// ...
 }
 
-func NewChatHandler(crSvc service.ChatService) (*ChatHandler, error) {
-	return &ChatHandler{crSvc}, nil
+func NewChatHandler(crSvc service.ChatService) *ChatHandler {
+	return &ChatHandler{crSvc}
 }
 
 const (
@@ -38,7 +38,6 @@ const (
 )
 
 func (h *ChatHandler) CreateChatroom(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 
 	var req ChatroomCreateRequest
 	err := jsonutil.ReadJSON(w, r, &req)

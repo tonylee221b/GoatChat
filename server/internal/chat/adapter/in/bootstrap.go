@@ -12,8 +12,8 @@ func BoostrapChat(db chatsqlc.DBTX) chi.Router {
 	r := chi.NewRouter()
 
 	repo := out.NewChatPgRepository(db)
-	crSvc, _ := service.NewChatService(repo)
-	h, _ := NewChatHandler(*crSvc)
+	crSvc := service.NewChatService(repo)
+	h := NewChatHandler(*crSvc)
 	router := NewChatRouter(h)
 	router.route(r)
 
