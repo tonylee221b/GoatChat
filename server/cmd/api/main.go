@@ -1,13 +1,18 @@
 package main
 
 import (
+	"GoatChat/GoatChat/internal/chat/adapter/in"
+	"context"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	identityRouter "GoatChat/GoatChat/internal/identity/adapter/in"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
@@ -27,6 +32,17 @@ func main() {
 	r.Route("/api/v1/", func(r chi.Router) {
 		r.Mount("/identity", identityRouter.SetRoutes())
 	})
+	ctx := context.Background()
+
+	databaseURL := os.Getenv("DATABASE_URL")
+
+	// TODO (mgyoo) : 추후 config파일로 분리
+	dbConn, err := pgxpool.New(ctx, databaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r2 := in.BoostrapChat(dbConn)
+	r.Mount("/", r2)
 
 	http.ListenAndServe(":8888", r)
 }
