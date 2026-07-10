@@ -13,15 +13,17 @@ type ChatService struct {
 	repo port.ChatRepository
 }
 
-func NewChatService(repo port.ChatRepository) (*ChatService, error) {
-	if repo == nil {
-		return nil, errors.New("Received repo as nil")
-	}
-
-	return &ChatService{repo}, nil
+func NewChatService(repo port.ChatRepository) *ChatService {
+	return &ChatService{repo}
 }
 
-func (svc *ChatService) CreateChatroom(ctx context.Context, rt domain.RoomType, rn domain.RoomName, d domain.RoomDescription, oid domain.RoomOwnerId) (*domain.ChatRoom, error) {
+// TODO (mgyoo) : transaction 추가시 변경예정
+func (svc *ChatService) CreateChatroom(ctx context.Context,
+	rt domain.RoomType,
+	rn domain.RoomName,
+	d domain.RoomDescription,
+	oid domain.RoomOwnerId,
+) (*domain.ChatRoom, error) {
 	cr, err := domain.NewChatroom(rt, rn, d, oid)
 	if err != nil {
 		slog.Info("failed to create chat room", "err", err.Error())

@@ -7,23 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type RoomId struct {
-	Value string
-}
-
-func NewRoomId(id string) (RoomId, error) {
-	if id == "" {
-		return RoomId{}, errors.New("room id is empty")
-	}
-	_, err := uuid.Parse(id)
-	if err != nil {
-		slog.Error("UUID parse error room id, ", "error", err.Error())
-		return RoomId{}, err
-	}
-
-	return RoomId{id}, nil
-}
-
 type RoomType string
 
 const (

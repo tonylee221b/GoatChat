@@ -20,8 +20,7 @@ func TestChatroomCreate(t *testing.T) {
 		Return(nil).
 		Once()
 
-	crsvc, err := service.NewChatService(m)
-	require.NoError(t, err)
+	crsvc := service.NewChatService(m)
 
 	ctx := context.TODO()
 	cr, err := crsvc.CreateChatroom(ctx, domain.RoomTypeDirect, domain.RoomName{Value: "MGYOO"}, domain.RoomDescription{}, domain.RoomOwnerId{Value: "123142141"})
