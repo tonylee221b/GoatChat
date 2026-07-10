@@ -1,6 +1,7 @@
-package in
+package in_test
 
 import (
+	in "GoatChat/GoatChat/internal/chat/adapter/in"
 	"GoatChat/GoatChat/internal/chat/application/port/mocks"
 	"GoatChat/GoatChat/internal/chat/application/service"
 	"bytes"
@@ -30,7 +31,7 @@ func TestCreateChatroom(t *testing.T) {
 			}
 
 			svc := service.NewChatService(m)
-			h := NewChatHandler(*svc)
+			h := in.NewChatHandler(*svc)
 
 			rec := httptest.NewRecorder()
 			h.CreateChatroom(rec, req)
@@ -45,7 +46,7 @@ func TestCreateChatroom(t *testing.T) {
 
 type createChatroomTestCase struct {
 	name       string
-	body       ChatroomCreateRequest
+	body       in.ChatroomCreateRequest
 	setupMock  func(*mocks.MockChatRepository)
 	wantStatus int
 }
@@ -55,7 +56,7 @@ func createChatroomTestCases() []createChatroomTestCase {
 	return []createChatroomTestCase{
 		{
 			name: "success",
-			body: ChatroomCreateRequest{
+			body: in.ChatroomCreateRequest{
 				OwnerId:  oid,
 				RoomType: "direct",
 				RoomName: "test room",
@@ -70,7 +71,7 @@ func createChatroomTestCases() []createChatroomTestCase {
 		},
 		{
 			name: "invalid room type",
-			body: ChatroomCreateRequest{
+			body: in.ChatroomCreateRequest{
 				OwnerId:  oid,
 				RoomType: "wrong",
 				RoomName: "test room",
@@ -80,7 +81,7 @@ func createChatroomTestCases() []createChatroomTestCase {
 		},
 		{
 			name: "invalid room name",
-			body: ChatroomCreateRequest{
+			body: in.ChatroomCreateRequest{
 				OwnerId:  oid,
 				RoomType: "direct",
 				RoomName: "",
@@ -90,7 +91,7 @@ func createChatroomTestCases() []createChatroomTestCase {
 		},
 		{
 			name: "invalid owner id",
-			body: ChatroomCreateRequest{
+			body: in.ChatroomCreateRequest{
 				OwnerId:  "invalid owner id",
 				RoomType: "direct",
 				RoomName: "test room",
@@ -100,7 +101,7 @@ func createChatroomTestCases() []createChatroomTestCase {
 		},
 		{
 			name: "service error",
-			body: ChatroomCreateRequest{
+			body: in.ChatroomCreateRequest{
 				OwnerId:  oid,
 				RoomType: "direct",
 				RoomName: "test room",
