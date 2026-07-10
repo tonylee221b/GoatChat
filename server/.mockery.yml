@@ -1,0 +1,11 @@
+template: testify
+
+packages:
+  GoatChat/GoatChat/internal/chat/application/port:
+    config:
+      dir: internal/chat/application/port/mocks
+      filename: "chat_repository_mock.go"
+      pkgname: mocks
+      structname: "Mock{{.InterfaceName}}"
+    interfaces:
+      ChatRepository:
