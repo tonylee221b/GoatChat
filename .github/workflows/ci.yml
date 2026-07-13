@@ -22,6 +22,9 @@ jobs:
           cache: true
           cache-dependency-path: server/go.sum
 
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@v1.13.0
+
       - name: Verify Go Formatting
         run: |
           cd server
