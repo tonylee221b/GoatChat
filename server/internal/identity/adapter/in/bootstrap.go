@@ -9,9 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func BootstrapIdentity(db *pgxpool.Pool) chi.Router {
-	r := chi.NewRouter()
-
+func BootstrapIdentity(r chi.Router, db *pgxpool.Pool) chi.Router {
 	repo := out.NewUserPgRepository(db)
 	tx := dbtx.NewPgxTx(db)
 	svc := application.NewUserService(tx, repo)

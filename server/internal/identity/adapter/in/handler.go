@@ -54,6 +54,7 @@ func (h *IdentityHandler) Register(w http.ResponseWriter, r *http.Request) {
 	username, err := domain.NewUsername(req.Username)
 	if err != nil {
 		jsonutil.WriteError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	err = h.userSvc.Register(r.Context(), username)
@@ -75,9 +76,9 @@ func (h *IdentityHandler) FindByUsername(w http.ResponseWriter, r *http.Request)
 
 	user, err := h.userSvc.FindByUsername(r.Context(), username)
 	if err != nil {
-		jsonutil.WriteError(w, http.StatusBadRequest, err.Error())
+		jsonutil.WriteError(w, http.StatusNotFound, err.Error())
 		return
 	}
 
-	jsonutil.WriteJSON(w, http.StatusCreated, user)
+	jsonutil.WriteJSON(w, http.StatusOK, user)
 }

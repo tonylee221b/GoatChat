@@ -1,28 +1,35 @@
 package main
 
 import (
-	"GoatChat/GoatChat/internal/chat/adapter/in"
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
-	"GoatChat/GoatChat/internal/identity/adapter/in"
+	chat_in "GoatChat/GoatChat/internal/chat/adapter/in"
+	identity_in "GoatChat/GoatChat/internal/identity/adapter/in"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const APIVersion = "/api/v1"
+const (
+	APIVersion = "/api/v1"
+)
 
 func main() {
 	ctx := context.Background()
+
+	// TODO (mgyoo) : 추후 config파일로 분리
 	pool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	port := ":" + os.Getenv("PORT")
 
 	r := chi.NewRouter()
 
@@ -37,22 +44,11 @@ func main() {
 		w.Write([]byte("Hello World"))
 	})
 
-	r.Route("/api/v1/", func(r chi.Router) {
-		r.Mount("/identity", identityRouter.SetRoutes())
+	r.Route(APIVersion, func(r chi.Router) {
+		identity_in.BootstrapIdentity(r, pool)
+		chat_in.BoostrapChat(r, pool)
 	})
-	ctx := context.Background()
 
-	databaseURL := os.Getenv("DATABASE_URL")
-
-	// TODO (mgyoo) : 추후 config파일로 분리
-	dbConn, err := pgxpool.New(ctx, databaseURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r2 := in.BoostrapChat(dbConn)
-	r.Mount("/", r2)
-	ir := in.BootstrapIdentity(pool)
-	r.Mount(APIVersion, ir)
-
-	http.ListenAndServe(":8888", r)
+	slog.Info("GOAT Chat Server is running...", "PORT", port)
+	http.ListenAndServe(port, r)
 }

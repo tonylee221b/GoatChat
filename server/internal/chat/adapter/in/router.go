@@ -17,7 +17,7 @@ func NewChatRouter(h *ChatHandler) *ChatRouter {
 	return &ChatRouter{h}
 }
 
-func (cr *ChatRouter) route(r *chi.Mux) {
+func (cr *ChatRouter) route(r chi.Router) {
 	r.Route(ChatRouteGroup, func(r chi.Router) {
 		r.Post(string(ChatroomRouteGruop), cr.h.CreateChatroom)
 	})

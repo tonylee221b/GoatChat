@@ -2,11 +2,14 @@ package out
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 
 	identitysqlc "GoatChat/GoatChat/internal/identity/adapter/out/sqlc"
 	"GoatChat/GoatChat/internal/identity/domain"
 	dbtx "GoatChat/GoatChat/internal/shared/db_tx"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -41,8 +44,14 @@ func (u *UserPgRepository) FindByUsername(ctx context.Context, un domain.Usernam
 		Username: un.Value,
 	})
 	if err != nil {
-		return nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errors.New(domain.ErrUserNotFound)
+		}
+
+		slog.Error("something went wrong with db", "error", err)
+		return nil, errors.New(domain.ErrDB)
 	}
+	slog.Debug("user found from db", "user", userFromDB.Username)
 
 	username, err := domain.NewUsername(userFromDB.Username)
 	if err != nil {

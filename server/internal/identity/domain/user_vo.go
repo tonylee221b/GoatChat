@@ -5,12 +5,6 @@ import (
 	"regexp"
 )
 
-const (
-	ErrorBlankUsername            = "username cannot be blank"
-	ErrorInvalidPhoneNumberFormat = "invalid phone number format"
-	ErrorInvalidEmailFormat       = "invalid email format"
-)
-
 type UserStatus string
 
 const (
@@ -24,7 +18,7 @@ type Username struct {
 
 func NewUsername(name string) (Username, error) {
 	if name == "" {
-		return Username{}, errors.New(ErrorBlankUsername)
+		return Username{}, errors.New(ErrInvalidUsername)
 	}
 
 	return Username{Value: name}, nil
@@ -36,11 +30,11 @@ type PhoneNumber struct {
 
 func NewPhoneNumber(number string) (PhoneNumber, error) {
 	if number == "" {
-		return PhoneNumber{}, errors.New(ErrorInvalidPhoneNumberFormat)
+		return PhoneNumber{}, errors.New(ErrInvalidPhoneNumberFormat)
 	}
 
 	if ok, _ := regexp.MatchString("", number); !ok {
-		return PhoneNumber{}, errors.New(ErrorInvalidPhoneNumberFormat)
+		return PhoneNumber{}, errors.New(ErrInvalidPhoneNumberFormat)
 	}
 
 	return PhoneNumber{Value: number}, nil
@@ -52,7 +46,7 @@ type Email struct {
 
 func NewEmail(email string) (Email, error) {
 	if email == "" {
-		return Email{}, errors.New(ErrorInvalidEmailFormat)
+		return Email{}, errors.New(ErrInvalidEmailFormat)
 	}
 
 	return Email{Value: email}, nil

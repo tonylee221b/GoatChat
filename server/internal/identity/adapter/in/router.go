@@ -18,7 +18,7 @@ func NewIdentityRouter(h *IdentityHandler) *IdentityRouter {
 	return ir
 }
 
-func (ir *IdentityRouter) route(r *chi.Mux) {
+func (ir *IdentityRouter) route(r chi.Router) {
 	r.Route(UserRouteGroup, func(r chi.Router) {
 		r.Post("/register", ir.h.Register)
 		r.Get("/{username}", ir.h.FindByUsername)

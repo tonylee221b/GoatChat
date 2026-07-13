@@ -11,7 +11,6 @@ type User struct {
 	Username    Username
 	Email       Email
 	PhoneNumber PhoneNumber
-	Credential  UserCredential
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   time.Time
