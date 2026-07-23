@@ -1,37 +1,29 @@
 package domain
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
 type User struct {
-	ID          uuid.UUID
-	Username    Username
-	Email       Email
-	PhoneNumber PhoneNumber
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   time.Time
+	ID       uuid.UUID
+	Username Username
+	Contact  Contact
+	Audit    Audit
 }
 
-func NewUser(username Username) (*User, error) {
+func NewUser(username Username) *User {
 	return &User{
-		ID:        uuid.New(),
-		Username:  username,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}, nil
+		ID:       uuid.New(),
+		Username: username,
+	}
 }
 
-func (u *User) UpdatePhoneNumber(phoneNumber string) error {
-	pn, err := NewPhoneNumber(phoneNumber)
+func (u *User) UpdateContact(contact Contact) error {
+	c, err := NewContact(contact.PhoneNumber.Value, contact.Email.Value)
 	if err != nil {
 		return err
 	}
 
-	u.PhoneNumber = pn
-	u.UpdatedAt = time.Now()
+	u.Contact = c
 	return nil
 }

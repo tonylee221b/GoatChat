@@ -20,7 +20,8 @@ func NewIdentityRouter(h *IdentityHandler) *IdentityRouter {
 
 func (ir *IdentityRouter) route(r chi.Router) {
 	r.Route(UserRouteGroup, func(r chi.Router) {
-		r.Post("/register", ir.h.Register)
+		r.Post("/", ir.h.Register)
 		r.Get("/{username}", ir.h.FindByUsername)
+		r.Put("/{username}", ir.h.UpdateContact)
 	})
 }

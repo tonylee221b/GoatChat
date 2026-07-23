@@ -54,6 +54,25 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const existsUserByUsername = `-- name: ExistsUserByUsername :one
+SELECT EXISTS (
+  SELECT 1
+  FROM users u
+  WHERE u.username = $1
+)
+`
+
+type ExistsUserByUsernameParams struct {
+	Username string `json:"username"`
+}
+
+func (q *Queries) ExistsUserByUsername(ctx context.Context, arg ExistsUserByUsernameParams) (bool, error) {
+	row := q.db.QueryRow(ctx, existsUserByUsername, arg.Username)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const getUserByUsername = `-- name: GetUserByUsername :one
 SELECT id, username, email, phone_number, status, created_at, updated_at, deleted_at
 FROM users u
@@ -67,6 +86,38 @@ type GetUserByUsernameParams struct {
 
 func (q *Queries) GetUserByUsername(ctx context.Context, arg GetUserByUsernameParams) (User, error) {
 	row := q.db.QueryRow(ctx, getUserByUsername, arg.Username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateContact = `-- name: UpdateContact :one
+UPDATE users
+SET
+  phone_number = $1,
+  email = $2,
+  updated_at = now()
+WHERE id = $3
+RETURNING id, username, email, phone_number, status, created_at, updated_at, deleted_at
+`
+
+type UpdateContactParams struct {
+	PhoneNumber *string   `json:"phone_number"`
+	Email       *string   `json:"email"`
+	ID          uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateContact(ctx context.Context, arg UpdateContactParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateContact, arg.PhoneNumber, arg.Email, arg.ID)
 	var i User
 	err := row.Scan(
 		&i.ID,

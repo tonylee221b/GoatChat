@@ -38,6 +38,72 @@ func (_m *MockUserRepository) EXPECT() *MockUserRepository_Expecter {
 	return &MockUserRepository_Expecter{mock: &_m.Mock}
 }
 
+// ExistsByUsername provides a mock function for the type MockUserRepository
+func (_mock *MockUserRepository) ExistsByUsername(ctx context.Context, username domain.Username) (bool, error) {
+	ret := _mock.Called(ctx, username)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExistsByUsername")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Username) (bool, error)); ok {
+		return returnFunc(ctx, username)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Username) bool); ok {
+		r0 = returnFunc(ctx, username)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Username) error); ok {
+		r1 = returnFunc(ctx, username)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockUserRepository_ExistsByUsername_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExistsByUsername'
+type MockUserRepository_ExistsByUsername_Call struct {
+	*mock.Call
+}
+
+// ExistsByUsername is a helper method to define mock.On call
+//   - ctx context.Context
+//   - username domain.Username
+func (_e *MockUserRepository_Expecter) ExistsByUsername(ctx any, username any) *MockUserRepository_ExistsByUsername_Call {
+	return &MockUserRepository_ExistsByUsername_Call{Call: _e.mock.On("ExistsByUsername", ctx, username)}
+}
+
+func (_c *MockUserRepository_ExistsByUsername_Call) Run(run func(ctx context.Context, username domain.Username)) *MockUserRepository_ExistsByUsername_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.Username
+		if args[1] != nil {
+			arg1 = args[1].(domain.Username)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserRepository_ExistsByUsername_Call) Return(b bool, err error) *MockUserRepository_ExistsByUsername_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockUserRepository_ExistsByUsername_Call) RunAndReturn(run func(ctx context.Context, username domain.Username) (bool, error)) *MockUserRepository_ExistsByUsername_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // FindByUsername provides a mock function for the type MockUserRepository
 func (_mock *MockUserRepository) FindByUsername(ctx context.Context, username domain.Username) (*domain.User, error) {
 	ret := _mock.Called(ctx, username)
@@ -159,6 +225,63 @@ func (_c *MockUserRepository_Save_Call) Return(err error) *MockUserRepository_Sa
 }
 
 func (_c *MockUserRepository_Save_Call) RunAndReturn(run func(ctx context.Context, user domain.User) error) *MockUserRepository_Save_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Update provides a mock function for the type MockUserRepository
+func (_mock *MockUserRepository) Update(ctx context.Context, user domain.User) error {
+	ret := _mock.Called(ctx, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.User) error); ok {
+		r0 = returnFunc(ctx, user)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUserRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockUserRepository_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - user domain.User
+func (_e *MockUserRepository_Expecter) Update(ctx any, user any) *MockUserRepository_Update_Call {
+	return &MockUserRepository_Update_Call{Call: _e.mock.On("Update", ctx, user)}
+}
+
+func (_c *MockUserRepository_Update_Call) Run(run func(ctx context.Context, user domain.User)) *MockUserRepository_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.User
+		if args[1] != nil {
+			arg1 = args[1].(domain.User)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserRepository_Update_Call) Return(err error) *MockUserRepository_Update_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUserRepository_Update_Call) RunAndReturn(run func(ctx context.Context, user domain.User) error) *MockUserRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"time"
 
 	identitysqlc "GoatChat/GoatChat/internal/identity/adapter/out/sqlc"
 	"GoatChat/GoatChat/internal/identity/domain"
@@ -21,19 +22,53 @@ func NewUserPgRepository(pool *pgxpool.Pool) *UserPgRepository {
 	return &UserPgRepository{pool: pool}
 }
 
+func (u *UserPgRepository) ExistsByUsername(ctx context.Context, username domain.Username) (bool, error) {
+	q := u.queries(ctx)
+
+	isExist, err := q.ExistsUserByUsername(ctx, identitysqlc.ExistsUserByUsernameParams{
+		Username: username.Value,
+	})
+	if err != nil {
+		slog.Error("db error", "error", err)
+		return false, errors.New(domain.ErrDB)
+	}
+	slog.Debug("user exists by username", "isUserExist", isExist)
+
+	return isExist, nil
+}
+
 func (u *UserPgRepository) Save(ctx context.Context, user domain.User) error {
 	q := u.queries(ctx)
 
 	_, err := q.CreateUser(ctx, identitysqlc.CreateUserParams{
 		ID:          user.ID,
-		Email:       &user.Email.Value,
 		Username:    user.Username.Value,
-		PhoneNumber: &user.PhoneNumber.Value,
+		Email:       &user.Contact.Email.Value,
+		PhoneNumber: &user.Contact.PhoneNumber.Value,
 	})
 	if err != nil {
+		slog.Info("failed to create user", "user", user)
 		return err
 	}
 
+	slog.Debug("new user created", "user", user)
+	return nil
+}
+
+func (u *UserPgRepository) Update(ctx context.Context, user domain.User) error {
+	q := u.queries(ctx)
+
+	_, err := q.UpdateContact(ctx, identitysqlc.UpdateContactParams{
+		ID:          user.ID,
+		PhoneNumber: &user.Contact.PhoneNumber.Value,
+		Email:       &user.Contact.Email.Value,
+	})
+	if err != nil {
+		slog.Info("failed to update user", "user", user)
+		return err
+	}
+
+	slog.Debug("user updated", "user", user)
 	return nil
 }
 
@@ -53,12 +88,7 @@ func (u *UserPgRepository) FindByUsername(ctx context.Context, un domain.Usernam
 	}
 	slog.Debug("user found from db", "user", userFromDB.Username)
 
-	username, err := domain.NewUsername(userFromDB.Username)
-	if err != nil {
-		return nil, err
-	}
-
-	return domain.NewUser(username)
+	return toDomain(userFromDB), nil
 }
 
 func (u *UserPgRepository) queries(ctx context.Context) *identitysqlc.Queries {
@@ -71,4 +101,22 @@ func (u *UserPgRepository) db(ctx context.Context) identitysqlc.DBTX {
 	}
 
 	return u.pool
+}
+
+func toDomain(ufd identitysqlc.User) *domain.User {
+	un, _ := domain.NewUsername(ufd.Username)
+	c, _ := domain.NewContact(*ufd.PhoneNumber, *ufd.Email)
+
+	var deletedAt *time.Time
+	if !ufd.DeletedAt.Valid {
+		deletedAt = nil
+	}
+	a := domain.NewAudit(ufd.CreatedAt.Time, ufd.UpdatedAt.Time, deletedAt)
+
+	return &domain.User{
+		ID:       ufd.ID,
+		Username: un,
+		Contact:  c,
+		Audit:    a,
+	}
 }
