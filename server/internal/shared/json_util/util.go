@@ -3,7 +3,6 @@ package jsonutil
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -16,6 +15,7 @@ type Envelope map[string]any
 func WriteJSON(w http.ResponseWriter, status int, payload any) error {
 	js, err := json.Marshal(payload)
 	if err != nil {
+		slog.Info("failed to marshal payload to json", "payload", payload)
 		return err
 	}
 
@@ -40,7 +40,8 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(dst); err != nil {
-		return fmt.Errorf("bad request: %w", err)
+		slog.Info("failed to decode json", "error", err.Error())
+		return errors.New("failed to decode json")
 	}
 
 	err := decoder.Decode(&struct{}{})

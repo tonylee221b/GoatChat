@@ -1,30 +1,31 @@
 package in
 
 import (
-	"GoatChat/GoatChat/internal/chat/application/service"
-	"GoatChat/GoatChat/internal/chat/domain"
-	jsonutil "GoatChat/GoatChat/internal/shared/json_util"
 	"log/slog"
 	"net/http"
+
+	"GoatChat/GoatChat/internal/chat/application"
+	"GoatChat/GoatChat/internal/chat/domain"
+	jsonutil "GoatChat/GoatChat/internal/shared/json_util"
 )
 
 type ChatHandler struct {
-	crSvc service.ChatService
+	crSvc application.ChatService
 }
 
 type ChatroomCreateRequest struct {
 	RoomType    string `json:"room_type"`
 	RoomName    string `json:"room_name"`
-	OwnerId     string `json:"owner_id"`
+	OwnerID     string `json:"owner_id"`
 	Description string `json:"description,omitempty"`
 }
 
 type ChatroomCreateResponse struct {
-	RoomId string `json:"room_id"`
+	RoomID string `json:"room_id"`
 	// ...
 }
 
-func NewChatHandler(crSvc service.ChatService) *ChatHandler {
+func NewChatHandler(crSvc application.ChatService) *ChatHandler {
 	return &ChatHandler{crSvc}
 }
 
@@ -33,12 +34,11 @@ const (
 	ErrInvalidRt  = "invalid room type"
 	ErrInvalidRn  = "invalid room name"
 	ErrInvalidRd  = "invalid room description"
-	ErrInvalidOid = "invalid owner id"
+	ErrInvalidOID = "invalid owner id"
 	ErrCreateCr   = "failed to create chat room"
 )
 
 func (h *ChatHandler) CreateChatroom(w http.ResponseWriter, r *http.Request) {
-
 	var req ChatroomCreateRequest
 	err := jsonutil.ReadJSON(w, r, &req)
 	if err != nil {
@@ -68,15 +68,14 @@ func (h *ChatHandler) CreateChatroom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oid, err := domain.NewRoomOwnerId(req.OwnerId)
+	oid, err := domain.NewRoomOwnerId(req.OwnerID)
 	if err != nil {
-		slog.Info(ErrInvalidOid)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidOid)
+		slog.Info(ErrInvalidOID)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidOID)
 		return
 	}
 
 	room, err := h.crSvc.CreateChatroom(r.Context(), rt, rn, rd, oid)
-
 	if err != nil {
 		slog.Error(ErrCreateCr)
 		jsonutil.WriteError(w, http.StatusBadRequest, ErrCreateCr)
@@ -84,7 +83,7 @@ func (h *ChatHandler) CreateChatroom(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := ChatroomCreateResponse{
-		RoomId: room.ID.String(),
+		RoomID: room.ID.String(),
 	}
 
 	jsonutil.WriteJSON(w, http.StatusCreated, res)

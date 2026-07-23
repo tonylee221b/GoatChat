@@ -1,11 +1,12 @@
-package service_test
+package application_test
 
 import (
-	"GoatChat/GoatChat/internal/chat/application/port/mocks"
-	"GoatChat/GoatChat/internal/chat/application/service"
-	domain "GoatChat/GoatChat/internal/chat/domain"
 	"context"
 	"testing"
+
+	"GoatChat/GoatChat/internal/chat/application"
+	"GoatChat/GoatChat/internal/chat/application/port/mocks"
+	domain "GoatChat/GoatChat/internal/chat/domain"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -13,14 +14,13 @@ import (
 )
 
 func TestChatroomCreate(t *testing.T) {
-
 	m := mocks.NewMockChatRepository(t)
 	m.EXPECT().
 		SaveChatroom(mock.Anything, mock.Anything).
 		Return(nil).
 		Once()
 
-	crsvc := service.NewChatService(m)
+	crsvc := application.NewChatService(m)
 
 	ctx := context.TODO()
 	cr, err := crsvc.CreateChatroom(ctx, domain.RoomTypeDirect, domain.RoomName{Value: "MGYOO"}, domain.RoomDescription{}, domain.RoomOwnerId{Value: "123142141"})

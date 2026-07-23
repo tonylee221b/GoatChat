@@ -9,3 +9,19 @@ packages:
       structname: "Mock{{.InterfaceName}}"
     interfaces:
       ChatRepository:
+  GoatChat/GoatChat/internal/identity/application/port:
+    config:
+      dir: internal/identity/application/port/mocks
+      filename: "user_repository_mock.go"
+      pkgname: mocks
+      structname: "Mock{{.InterfaceName}}"
+    interfaces:
+      UserRepository:
+  GoatChat/GoatChat/internal/shared/db_tx:
+    config:
+      dir: internal/shared/db_tx/testutils
+      filename: "tx_mock.go"
+      pkgname: testutils
+      structname: "Mock{{.InterfaceName}}"
+    interfaces:
+      Tx:
