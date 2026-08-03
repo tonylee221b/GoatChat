@@ -2,11 +2,13 @@
 INSERT INTO users (
   id,
   username,
+  password_hash,
   email,
   phone_number
 ) VALUES (
   sqlc.arg(id),
   sqlc.arg(username),
+  sqlc.arg(password_hash),
   sqlc.arg(email),
   sqlc.arg(phone_number)
 )

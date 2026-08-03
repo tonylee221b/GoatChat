@@ -32,8 +32,8 @@ func (u *UserPgRepository) ExistsByUsername(ctx context.Context, username domain
 		slog.Error("db error", "error", err)
 		return false, errors.New(domain.ErrDB)
 	}
-	slog.Debug("user exists by username", "isUserExist", isExist)
 
+	slog.Debug("user exists by username", "isUserExist", isExist)
 	return isExist, nil
 }
 
@@ -48,7 +48,7 @@ func (u *UserPgRepository) Save(ctx context.Context, user domain.User) error {
 	})
 	if err != nil {
 		slog.Info("failed to create user", "user", user)
-		return err
+		return errors.New(domain.ErrDB)
 	}
 
 	slog.Debug("new user created", "user", user)
@@ -65,7 +65,7 @@ func (u *UserPgRepository) Update(ctx context.Context, user domain.User) error {
 	})
 	if err != nil {
 		slog.Info("failed to update user", "user", user)
-		return err
+		return errors.New(domain.ErrDB)
 	}
 
 	slog.Debug("user updated", "user", user)
@@ -80,14 +80,15 @@ func (u *UserPgRepository) FindByUsername(ctx context.Context, un domain.Usernam
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
+			slog.Info("user not found", "username", un.Value)
 			return nil, errors.New(domain.ErrUserNotFound)
 		}
 
 		slog.Error("something went wrong with db", "error", err)
 		return nil, errors.New(domain.ErrDB)
 	}
-	slog.Debug("user found from db", "user", userFromDB.Username)
 
+	slog.Debug("user found from db", "user", userFromDB.Username)
 	return toDomain(userFromDB), nil
 }
 

@@ -20,6 +20,7 @@ const (
 
 type RegisterUserReq struct {
 	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type UpdateUserContactReq struct {
@@ -39,7 +40,7 @@ type UserResponse struct {
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 }
 
-func fromDomain(user domain.User) UserResponse {
+func newUserResponse(user domain.User) UserResponse {
 	return UserResponse{
 		UserID:      user.ID.String(),
 		Username:    user.Username.Value,
@@ -76,7 +77,7 @@ func (h *IdentityHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.userSvc.Register(r.Context(), username)
+	err = h.userSvc.Register(r.Context(), username, req.Password)
 	if err != nil {
 		jsonutil.WriteError(w, http.StatusBadRequest, err.Error())
 		return
@@ -99,7 +100,7 @@ func (h *IdentityHandler) FindByUsername(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	jsonutil.WriteJSON(w, http.StatusOK, fromDomain(user))
+	jsonutil.WriteJSON(w, http.StatusOK, newUserResponse(user))
 }
 
 func (h *IdentityHandler) UpdateContact(w http.ResponseWriter, r *http.Request) {
@@ -130,5 +131,5 @@ func (h *IdentityHandler) UpdateContact(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	jsonutil.WriteJSON(w, http.StatusOK, fromDomain(updated))
+	jsonutil.WriteJSON(w, http.StatusOK, newUserResponse(updated))
 }

@@ -96,3 +96,18 @@ type Audit struct {
 func NewAudit(createdAt, updatedAt time.Time, deletedAt *time.Time) Audit {
 	return Audit{createdAt, updatedAt, deletedAt}
 }
+
+type PasswordHash struct {
+	Value string
+}
+
+func NewPasswordHash(hashedPW string) (PasswordHash, error) {
+	if strings.TrimSpace(hashedPW) == "" {
+		slog.Info("password is blank")
+		return PasswordHash{}, errors.New(ErrInvalidPasswordFormat)
+	}
+
+	return PasswordHash{
+		Value: hashedPW,
+	}, nil
+}

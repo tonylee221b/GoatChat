@@ -11,15 +11,16 @@ import (
 )
 
 type UserService struct {
-	tx   dbtx.Tx
-	repo port.UserRepository
+	tx       dbtx.Tx
+	repo     port.UserRepository
+	pwHasher port.PasswordHasher
 }
 
-func NewUserService(tx dbtx.Tx, repo port.UserRepository) *UserService {
-	return &UserService{tx, repo}
+func NewUserService(tx dbtx.Tx, userRepo port.UserRepository, pwHasher port.PasswordHasher) *UserService {
+	return &UserService{tx, userRepo, pwHasher}
 }
 
-func (u *UserService) Register(ctx context.Context, username domain.Username) error {
+func (u *UserService) Register(ctx context.Context, username domain.Username, plainPW string) error {
 	return u.tx.WithinTx(ctx, func(ctx context.Context) error {
 		isExist, err := u.repo.ExistsByUsername(ctx, username)
 		if err != nil {
@@ -31,7 +32,17 @@ func (u *UserService) Register(ctx context.Context, username domain.Username) er
 			return errors.New(domain.ErrUserAlreadyExist)
 		}
 
-		user := domain.NewUser(username)
+		hashedPW, err := u.pwHasher.Hash(plainPW)
+		if err != nil {
+			return err
+		}
+
+		pwHash, err := domain.NewPasswordHash(hashedPW)
+		if err != nil {
+			return err
+		}
+
+		user := domain.NewUser(username, pwHash)
 
 		if err = u.repo.Save(ctx, *user); err != nil {
 			slog.Error("db error. user cannot be saved", "error", err)
@@ -43,24 +54,12 @@ func (u *UserService) Register(ctx context.Context, username domain.Username) er
 }
 
 func (u *UserService) FindByUsername(ctx context.Context, un domain.Username) (domain.User, error) {
-	var user *domain.User
-
-	err := u.tx.WithinTx(ctx, func(ctx context.Context) error {
-		ufd, err := u.repo.FindByUsername(ctx, un)
-		if err != nil {
-			return err
-		}
-
-		user = ufd
-
-		return nil
-	})
+	ufd, err := u.repo.FindByUsername(ctx, un)
 	if err != nil {
-		slog.Error("tx error", "error", err)
 		return domain.User{}, err
 	}
 
-	return *user, nil
+	return *ufd, nil
 }
 
 func (u *UserService) UpdateContact(ctx context.Context, username domain.Username, contact domain.Contact) (domain.User, error) {
@@ -69,7 +68,6 @@ func (u *UserService) UpdateContact(ctx context.Context, username domain.Usernam
 	err := u.tx.WithinTx(ctx, func(ctx context.Context) error {
 		ufd, err := u.repo.FindByUsername(ctx, username)
 		if err != nil {
-			slog.Info("user not found", "username", username)
 			return err
 		}
 
