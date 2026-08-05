@@ -7,6 +7,7 @@ import (
 	"GoatChat/GoatChat/internal/chat/application"
 	"GoatChat/GoatChat/internal/chat/application/port/mocks"
 	domain "GoatChat/GoatChat/internal/chat/domain"
+	"GoatChat/GoatChat/internal/shared/db_tx/testutils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,9 +21,9 @@ func TestChatroomCreate(t *testing.T) {
 		Return(nil).
 		Once()
 
-	crsvc := application.NewChatService(m)
+	crsvc := application.NewChatService(testutils.StubTx{}, m)
 
-	ctx := context.TODO()
+	ctx := context.Background()
 	cr, err := crsvc.CreateChatroom(ctx, domain.RoomTypeDirect, domain.RoomName{Value: "MGYOO"}, domain.RoomDescription{}, domain.RoomOwnerId{Value: "123142141"})
 	require.NoError(t, err)
 

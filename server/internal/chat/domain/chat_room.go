@@ -12,12 +12,12 @@ type ChatRoom struct {
 	OwnerId     RoomOwnerId
 }
 
-func NewChatroom(rt RoomType, rn RoomName, d RoomDescription, oid RoomOwnerId) (*ChatRoom, error) {
+func NewChatroom(rt RoomType, rn RoomName, d RoomDescription, oid RoomOwnerId) *ChatRoom {
 	return &ChatRoom{
 		ID:          uuid.New(),
 		RoomType:    rt,
 		RoomName:    rn,
 		Description: d,
 		OwnerId:     oid,
-	}, nil
+	}
 }

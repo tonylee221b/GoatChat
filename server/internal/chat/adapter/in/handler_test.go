@@ -11,6 +11,7 @@ import (
 	in "GoatChat/GoatChat/internal/chat/adapter/in"
 	"GoatChat/GoatChat/internal/chat/application"
 	"GoatChat/GoatChat/internal/chat/application/port/mocks"
+	"GoatChat/GoatChat/internal/shared/db_tx/testutils"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +32,7 @@ func TestCreateChatroom(t *testing.T) {
 				tt.setupMock(m)
 			}
 
-			svc := application.NewChatService(m)
+			svc := application.NewChatService(testutils.StubTx{}, m)
 			h := in.NewChatHandler(*svc)
 
 			rec := httptest.NewRecorder()

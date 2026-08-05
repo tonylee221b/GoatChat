@@ -63,7 +63,7 @@ type MockChatRepository_SaveChatroom_Call struct {
 // SaveChatroom is a helper method to define mock.On call
 //   - ctx context.Context
 //   - cr domain.ChatRoom
-func (_e *MockChatRepository_Expecter) SaveChatroom(ctx any, cr any) *MockChatRepository_SaveChatroom_Call {
+func (_e *MockChatRepository_Expecter) SaveChatroom(ctx interface{}, cr interface{}) *MockChatRepository_SaveChatroom_Call {
 	return &MockChatRepository_SaveChatroom_Call{Call: _e.mock.On("SaveChatroom", ctx, cr)}
 }
 
