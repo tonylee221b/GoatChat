@@ -27,24 +27,14 @@ func (svc *ChatService) CreateChatroom(ctx context.Context,
 	d domain.RoomDescription,
 	oid domain.RoomOwnerId,
 ) (*domain.ChatRoom, error) {
-	var cr *domain.ChatRoom
-	err := svc.tx.WithinTx(ctx, func(ctx context.Context) error {
-		newCr, err := domain.NewChatroom(rt, rn, d, oid)
-		if err != nil {
-			slog.Info("failed to create chat room", "err", err.Error())
-			return errors.New("failed to create chat room, error: " + err.Error())
-		}
-		slog.Debug("chatroom domain: ", slog.Any("Chatroom", *newCr))
+	cr := domain.NewChatroom(rt, rn, d, oid)
+	slog.Debug("chatroom domain: ", slog.Any("Chatroom", *cr))
 
-		err = svc.repo.Save(ctx, *newCr)
-		if err != nil {
-			slog.Info("failed to save chat room", "err", err.Error())
-			return errors.New("failed to save chat room, error: " + err.Error())
-		}
-		cr = newCr
-
-		return nil
-	})
+	err := svc.repo.Save(ctx, *cr)
+	if err != nil {
+		slog.Info("failed to save chat room", "err", err.Error())
+		return nil, errors.New("failed to save chat room, error: " + err.Error())
+	}
 
 	return cr, err
 }
