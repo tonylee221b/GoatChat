@@ -36,7 +36,7 @@ func (svc *ChatService) CreateChatroom(ctx context.Context,
 		return nil, errors.New("failed to save chat room, error: " + err.Error())
 	}
 
-	return cr, err
+	return cr, nil
 }
 
 func (svc *ChatService) DeleteChatroom(ctx context.Context, id uuid.UUID) error {
