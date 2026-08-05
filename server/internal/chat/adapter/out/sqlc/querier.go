@@ -10,7 +10,9 @@ import (
 
 type Querier interface {
 	CreateChatRoom(ctx context.Context, arg CreateChatRoomParams) (ChatRoom, error)
+	DeleteChatRoomByID(ctx context.Context, arg DeleteChatRoomByIDParams) error
 	GetChatRoomByID(ctx context.Context, arg GetChatRoomByIDParams) (ChatRoom, error)
+	UpdateChatRoomByID(ctx context.Context, arg UpdateChatRoomByIDParams) error
 }
 
 var _ Querier = (*Queries)(nil)

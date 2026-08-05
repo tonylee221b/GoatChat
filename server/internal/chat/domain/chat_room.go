@@ -21,3 +21,15 @@ func NewChatroom(rt RoomType, rn RoomName, d RoomDescription, oid RoomOwnerId) (
 		OwnerId:     oid,
 	}, nil
 }
+
+func (c *ChatRoom) UpdateRoomType(rt RoomType) {
+	c.RoomType = rt
+}
+
+func (c *ChatRoom) UpdateRoomName(rn RoomName) {
+	c.RoomName = rn
+}
+
+func (c *ChatRoom) UpdateRoomDescription(rd RoomDescription) {
+	c.Description = rd
+}

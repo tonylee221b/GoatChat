@@ -8,6 +8,8 @@ import (
 	port "GoatChat/GoatChat/internal/chat/application/port"
 	"GoatChat/GoatChat/internal/chat/domain"
 	dbtx "GoatChat/GoatChat/internal/shared/db_tx"
+
+	"github.com/google/uuid"
 )
 
 type ChatService struct {
@@ -34,7 +36,7 @@ func (svc *ChatService) CreateChatroom(ctx context.Context,
 		}
 		slog.Debug("chatroom domain: ", slog.Any("Chatroom", *newCr))
 
-		err = svc.repo.SaveChatroom(ctx, *newCr)
+		err = svc.repo.Save(ctx, *newCr)
 		if err != nil {
 			slog.Info("failed to save chat room", "err", err.Error())
 			return errors.New("failed to save chat room, error: " + err.Error())
@@ -45,4 +47,35 @@ func (svc *ChatService) CreateChatroom(ctx context.Context,
 	})
 
 	return cr, err
+}
+
+func (svc *ChatService) DeleteChatroom(ctx context.Context, id uuid.UUID) error {
+	return svc.repo.Delete(ctx, id)
+}
+
+func (svc *ChatService) UpdateChatroom(ctx context.Context,
+	id uuid.UUID,
+	rt domain.RoomType,
+	rn domain.RoomName,
+	rd domain.RoomDescription,
+) error {
+	return svc.tx.WithinTx(ctx, func(ctx context.Context) error {
+
+		cfd, err := svc.repo.FindByChatroomId(ctx, id)
+		if err != nil {
+			return errors.New("failed to update chat room, error: " + err.Error())
+		}
+
+		cfd.UpdateRoomType(rt)
+		cfd.UpdateRoomName(rn)
+		cfd.UpdateRoomDescription(rd)
+
+		err = svc.repo.Update(ctx, *cfd)
+		if err != nil {
+			slog.Info("failed to update chat room", "err", err.Error())
+			return errors.New("failed to update chat room, error: " + err.Error())
+		}
+
+		return nil
+	})
 }
