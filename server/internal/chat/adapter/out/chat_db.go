@@ -68,7 +68,7 @@ func (r *ChatPgRepository) FindByChatroomId(ctx context.Context, cId uuid.UUID) 
 		return nil, errors.New("failed to get chat room by id: " + cId.String())
 	}
 
-	cr := toDomain(cfd)
+	cr := toChatRoomDomain(cfd)
 	if cr == nil {
 		return nil, errors.New("failed to get chat room by id, deleted chatroom")
 	}
@@ -94,7 +94,7 @@ func (r *ChatPgRepository) db(ctx context.Context) chatsqlc.DBTX {
 	return r.pool
 }
 
-func toDomain(cfd chatsqlc.ChatRoom) *domain.ChatRoom {
+func toChatRoomDomain(cfd chatsqlc.ChatRoom) *domain.ChatRoom {
 	if cfd.DeletedAt.Valid {
 		return nil
 	}
