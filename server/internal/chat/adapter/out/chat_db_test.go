@@ -23,7 +23,7 @@ func TestToDomainReturnsActiveChatroom(t *testing.T) {
 		DeletedAt:   pgtype.Timestamptz{},
 	}
 
-	got := toDomain(room)
+	got := toChatRoomDomain(room)
 
 	require.NotNil(t, got)
 	require.Equal(t, room.ID, got.ID)
@@ -44,7 +44,7 @@ func TestToDomainRejectsDeletedChatroom(t *testing.T) {
 		},
 	}
 
-	got := toDomain(room)
+	got := toChatRoomDomain(room)
 
 	require.Nil(t, got)
 }

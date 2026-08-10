@@ -30,9 +30,7 @@ func TestCreateChatroom(t *testing.T) {
 			req.Header.Set("Content-Type", "application/json")
 
 			m := mocks.NewMockChatRepository(t)
-			if tt.name != "service_error" {
-				tt.setupMock(m)
-			}
+			tt.setupMock(m)
 
 			svc := application.NewChatService(testutils.StubTx{}, m)
 			h := in.NewChatHandler(*svc)
@@ -43,6 +41,54 @@ func TestCreateChatroom(t *testing.T) {
 			res := rec.Result()
 			defer res.Body.Close()
 
+			require.Equal(t, tt.wantStatus, res.StatusCode)
+		})
+	}
+}
+
+func TestDeleteChatroom(t *testing.T) {
+	for _, tt := range deleteChatroomTestCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			require.NoError(t, json.NewEncoder(&buf).Encode(tt.body))
+
+			req := httptest.NewRequest(http.MethodDelete, "/MOCK_URL", &buf)
+			req.Header.Set("Content-Type", "application/json")
+
+			m := mocks.NewMockChatRepository(t)
+			tt.setupMock(m)
+			svc := application.NewChatService(testutils.StubTx{}, m)
+			h := in.NewChatHandler(*svc)
+
+			rec := httptest.NewRecorder()
+			h.DeleteChatroom(rec, req)
+
+			res := rec.Result()
+			defer res.Body.Close()
+			require.Equal(t, tt.wantStatus, res.StatusCode)
+		})
+	}
+}
+
+func TestUpdateChatroom(t *testing.T) {
+	for _, tt := range updateChatroomTestCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			require.NoError(t, json.NewEncoder(&buf).Encode(tt.body))
+
+			req := httptest.NewRequest(http.MethodPatch, "/MOCK_URL", &buf)
+			req.Header.Set("Content-Type", "application/json")
+
+			m := mocks.NewMockChatRepository(t)
+			tt.setupMock(m)
+			svc := application.NewChatService(testutils.StubTx{}, m)
+			h := in.NewChatHandler(*svc)
+
+			rec := httptest.NewRecorder()
+			h.UpdateChatroom(rec, req)
+
+			res := rec.Result()
+			defer res.Body.Close()
 			require.Equal(t, tt.wantStatus, res.StatusCode)
 		})
 	}
@@ -121,14 +167,16 @@ func createChatroomTestCases() []createChatroomTestCase {
 	}
 }
 
-func TestDeleteChatroom(t *testing.T) {
+type deleteChatroomTestCase struct {
+	name       string
+	body       in.ChatroomDeleteRequest
+	setupMock  func(*mocks.MockChatRepository)
+	wantStatus int
+}
+
+func deleteChatroomTestCases() []deleteChatroomTestCase {
 	roomID := uuid.New()
-	tests := []struct {
-		name       string
-		body       in.ChatroomDeleteRequest
-		setupMock  func(*mocks.MockChatRepository)
-		wantStatus int
-	}{
+	return []deleteChatroomTestCase{
 		{
 			name: "success",
 			body: in.ChatroomDeleteRequest{RoomID: roomID.String()},
@@ -158,38 +206,18 @@ func TestDeleteChatroom(t *testing.T) {
 			wantStatus: http.StatusBadRequest,
 		},
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var buf bytes.Buffer
-			require.NoError(t, json.NewEncoder(&buf).Encode(tt.body))
-
-			req := httptest.NewRequest(http.MethodDelete, "/MOCK_URL", &buf)
-			req.Header.Set("Content-Type", "application/json")
-
-			m := mocks.NewMockChatRepository(t)
-			tt.setupMock(m)
-			svc := application.NewChatService(testutils.StubTx{}, m)
-			h := in.NewChatHandler(*svc)
-
-			rec := httptest.NewRecorder()
-			h.DeleteChatroom(rec, req)
-
-			res := rec.Result()
-			defer res.Body.Close()
-			require.Equal(t, tt.wantStatus, res.StatusCode)
-		})
-	}
 }
 
-func TestUpdateChatroom(t *testing.T) {
+type updateChatroomTestCase struct {
+	name       string
+	body       in.ChatroomUpdateRequest
+	setupMock  func(*mocks.MockChatRepository)
+	wantStatus int
+}
+
+func updateChatroomTestCases() []updateChatroomTestCase {
 	roomID := uuid.New()
-	tests := []struct {
-		name       string
-		body       in.ChatroomUpdateRequest
-		setupMock  func(*mocks.MockChatRepository)
-		wantStatus int
-	}{
+	return []updateChatroomTestCase{
 		{
 			name: "success",
 			body: in.ChatroomUpdateRequest{
@@ -271,27 +299,5 @@ func TestUpdateChatroom(t *testing.T) {
 			},
 			wantStatus: http.StatusBadRequest,
 		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var buf bytes.Buffer
-			require.NoError(t, json.NewEncoder(&buf).Encode(tt.body))
-
-			req := httptest.NewRequest(http.MethodPatch, "/MOCK_URL", &buf)
-			req.Header.Set("Content-Type", "application/json")
-
-			m := mocks.NewMockChatRepository(t)
-			tt.setupMock(m)
-			svc := application.NewChatService(testutils.StubTx{}, m)
-			h := in.NewChatHandler(*svc)
-
-			rec := httptest.NewRecorder()
-			h.UpdateChatroom(rec, req)
-
-			res := rec.Result()
-			defer res.Body.Close()
-			require.Equal(t, tt.wantStatus, res.StatusCode)
-		})
 	}
 }

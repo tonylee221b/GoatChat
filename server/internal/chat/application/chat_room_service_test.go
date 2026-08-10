@@ -21,38 +21,7 @@ func TestCreateChatroom(t *testing.T) {
 	description := domain.RoomDescription{Value: "test description"}
 	ownerID := domain.RoomOwnerId{Value: uuid.NewString()}
 
-	tests := []struct {
-		name      string
-		setupMock func(*mocks.MockChatRepository)
-		wantErr   string
-	}{
-		{
-			name: "success",
-			setupMock: func(m *mocks.MockChatRepository) {
-				m.EXPECT().
-					Save(mock.Anything, mock.MatchedBy(func(room domain.ChatRoom) bool {
-						return room.RoomType == roomType &&
-							room.RoomName == roomName &&
-							room.Description == description &&
-							room.OwnerId == ownerID
-					})).
-					Return(nil).
-					Once()
-			},
-		},
-		{
-			name: "repository error",
-			setupMock: func(m *mocks.MockChatRepository) {
-				m.EXPECT().
-					Save(mock.Anything, mock.Anything).
-					Return(errors.New("save error")).
-					Once()
-			},
-			wantErr: "failed to save chat room, error: save error",
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range createChatroomTestCases(roomType, roomName, description, ownerID) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := mocks.NewMockChatRepository(t)
 			tt.setupMock(m)
@@ -80,33 +49,7 @@ func TestCreateChatroom(t *testing.T) {
 func TestDeleteChatroom(t *testing.T) {
 	roomID := uuid.New()
 
-	tests := []struct {
-		name      string
-		setupMock func(*mocks.MockChatRepository)
-		wantErr   string
-	}{
-		{
-			name: "success",
-			setupMock: func(m *mocks.MockChatRepository) {
-				m.EXPECT().
-					Delete(mock.Anything, roomID).
-					Return(nil).
-					Once()
-			},
-		},
-		{
-			name: "repository error",
-			setupMock: func(m *mocks.MockChatRepository) {
-				m.EXPECT().
-					Delete(mock.Anything, roomID).
-					Return(errors.New("delete error")).
-					Once()
-			},
-			wantErr: "delete error",
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range deleteChatroomTestCases(roomID) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := mocks.NewMockChatRepository(t)
 			tt.setupMock(m)
@@ -129,6 +72,99 @@ func TestUpdateChatroom(t *testing.T) {
 	updatedName := domain.RoomName{Value: "updated room"}
 	updatedDescription := domain.RoomDescription{Value: "updated description"}
 
+	for _, tt := range updateChatroomTestCases(roomID, updatedType, updatedName, updatedDescription) {
+		t.Run(tt.name, func(t *testing.T) {
+			m := mocks.NewMockChatRepository(t)
+			tt.setupMock(m)
+
+			svc := application.NewChatService(testutils.StubTx{}, m)
+			err := svc.UpdateChatroom(
+				context.Background(),
+				roomID,
+				updatedType,
+				updatedName,
+				updatedDescription,
+			)
+
+			if tt.wantErr == "" {
+				require.NoError(t, err)
+				return
+			}
+			require.EqualError(t, err, tt.wantErr)
+		})
+	}
+}
+
+type chatroomServiceTestCase struct {
+	name      string
+	setupMock func(*mocks.MockChatRepository)
+	wantErr   string
+}
+
+func createChatroomTestCases(
+	roomType domain.RoomType,
+	roomName domain.RoomName,
+	description domain.RoomDescription,
+	ownerID domain.RoomOwnerId,
+) []chatroomServiceTestCase {
+	return []chatroomServiceTestCase{
+		{
+			name: "success",
+			setupMock: func(m *mocks.MockChatRepository) {
+				m.EXPECT().
+					Save(mock.Anything, mock.MatchedBy(func(room domain.ChatRoom) bool {
+						return room.RoomType == roomType &&
+							room.RoomName == roomName &&
+							room.Description == description &&
+							room.OwnerId == ownerID
+					})).
+					Return(nil).
+					Once()
+			},
+		},
+		{
+			name: "repository error",
+			setupMock: func(m *mocks.MockChatRepository) {
+				m.EXPECT().
+					Save(mock.Anything, mock.Anything).
+					Return(errors.New("save error")).
+					Once()
+			},
+			wantErr: "failed to save chat room, error: save error",
+		},
+	}
+}
+
+func deleteChatroomTestCases(roomID uuid.UUID) []chatroomServiceTestCase {
+	return []chatroomServiceTestCase{
+		{
+			name: "success",
+			setupMock: func(m *mocks.MockChatRepository) {
+				m.EXPECT().
+					Delete(mock.Anything, roomID).
+					Return(nil).
+					Once()
+			},
+		},
+		{
+			name: "repository error",
+			setupMock: func(m *mocks.MockChatRepository) {
+				m.EXPECT().
+					Delete(mock.Anything, roomID).
+					Return(errors.New("delete error")).
+					Once()
+			},
+			wantErr: "delete error",
+		},
+	}
+}
+
+func updateChatroomTestCases(
+	roomID uuid.UUID,
+	updatedType domain.RoomType,
+	updatedName domain.RoomName,
+	updatedDescription domain.RoomDescription,
+) []chatroomServiceTestCase {
 	newChatroom := func() *domain.ChatRoom {
 		return &domain.ChatRoom{
 			ID:          roomID,
@@ -139,11 +175,7 @@ func TestUpdateChatroom(t *testing.T) {
 		}
 	}
 
-	tests := []struct {
-		name      string
-		setupMock func(*mocks.MockChatRepository)
-		wantErr   string
-	}{
+	return []chatroomServiceTestCase{
 		{
 			name: "success",
 			setupMock: func(m *mocks.MockChatRepository) {
@@ -186,27 +218,5 @@ func TestUpdateChatroom(t *testing.T) {
 			},
 			wantErr: "failed to update chat room, error: update error",
 		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := mocks.NewMockChatRepository(t)
-			tt.setupMock(m)
-
-			svc := application.NewChatService(testutils.StubTx{}, m)
-			err := svc.UpdateChatroom(
-				context.Background(),
-				roomID,
-				updatedType,
-				updatedName,
-				updatedDescription,
-			)
-
-			if tt.wantErr == "" {
-				require.NoError(t, err)
-				return
-			}
-			require.EqualError(t, err, tt.wantErr)
-		})
 	}
 }
