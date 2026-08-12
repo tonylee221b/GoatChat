@@ -56,9 +56,9 @@ func (svc *ChatService) UpdateChatroom(ctx context.Context,
 			return errors.New("failed to update chat room, error: " + err.Error())
 		}
 
-		cfd.UpdateRoomType(rt)
-		cfd.UpdateRoomName(rn)
-		cfd.UpdateRoomDescription(rd)
+		cfd.RoomType = rt
+		cfd.RoomName = rn
+		cfd.Description = rd
 
 		err = svc.repo.Update(ctx, *cfd)
 		if err != nil {
