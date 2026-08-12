@@ -16,7 +16,7 @@ type RefreshTokenHash struct {
 
 func NewRefreshTokenHash(plainToken string) (RefreshTokenHash, error) {
 	if plainToken == "" {
-		return RefreshTokenHash{}, errors.New(ErrInvalidRefreshTokenHash)
+		return RefreshTokenHash{}, errors.New(ErrEmptyRefreshToken)
 	}
 
 	return RefreshTokenHash{Value: sha256.Sum256([]byte(plainToken))}, nil
@@ -24,7 +24,6 @@ func NewRefreshTokenHash(plainToken string) (RefreshTokenHash, error) {
 
 func RestoreRefreshFromByte(raw []byte) (RefreshTokenHash, error) {
 	if len(raw) != refreshTokenHashSize {
-		slog.Warn("refresh token raw is empty")
 		return RefreshTokenHash{}, errors.New(ErrInvalidRefreshTokenHash)
 	}
 

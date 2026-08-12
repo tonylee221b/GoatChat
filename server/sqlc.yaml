@@ -41,3 +41,13 @@ sql:
             go_type:
               import: "github.com/google/uuid"
               type: "UUID"
+          - db_type: "timestamptz"
+            nullable: true
+            go_type:
+              type: "time.Time"
+              pointer: true
+          - db_type: "timestamptz"
+            nullable: false
+            go_type:
+              type: "time.Time"
+              pointer: false

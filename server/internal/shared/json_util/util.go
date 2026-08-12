@@ -33,6 +33,10 @@ func WriteError(w http.ResponseWriter, status int, message string) {
 	}
 }
 
+/* ReadJSON() parses request body into go object
+*
+* dst must be a pointer (ie. dst must be pass with '&')
+* */
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 

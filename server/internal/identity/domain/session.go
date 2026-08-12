@@ -34,6 +34,7 @@ func NewSession(
 		return nil, errors.New(ErrInvalidRefreshTokenHash)
 	}
 
+	slog.Info("now, expiresAt", "now", now, "expiresAt", expiresAt)
 	if !expiresAt.After(now) {
 		return nil, errors.New(ErrSessionExpired)
 	}
@@ -87,7 +88,7 @@ func (s *Session) RotateRefreshToken(newHash RefreshTokenHash, now time.Time) er
 
 	if newHash.IsZero() {
 		slog.Info("refresh token is empty")
-		return errors.New(ErrInvalidRefreshTokenHash)
+		return errors.New(ErrEmptyRefreshToken)
 	}
 
 	s.RefreshTokenHash = newHash

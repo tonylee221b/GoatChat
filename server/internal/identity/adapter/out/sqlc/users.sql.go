@@ -15,28 +15,32 @@ const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   id,
   username,
+  password_hash,
   email,
   phone_number
 ) VALUES (
   $1,
   $2,
   $3,
-  $4
+  $4,
+  $5
 )
-RETURNING id, username, email, phone_number, status, created_at, updated_at, deleted_at
+RETURNING id, username, email, phone_number, status, created_at, updated_at, deleted_at, password_hash
 `
 
 type CreateUserParams struct {
-	ID          uuid.UUID `json:"id"`
-	Username    string    `json:"username"`
-	Email       *string   `json:"email"`
-	PhoneNumber *string   `json:"phone_number"`
+	ID           uuid.UUID `json:"id"`
+	Username     string    `json:"username"`
+	PasswordHash string    `json:"password_hash"`
+	Email        *string   `json:"email"`
+	PhoneNumber  *string   `json:"phone_number"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.ID,
 		arg.Username,
+		arg.PasswordHash,
 		arg.Email,
 		arg.PhoneNumber,
 	)
@@ -50,6 +54,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.PasswordHash,
 	)
 	return i, err
 }
@@ -74,7 +79,7 @@ func (q *Queries) ExistsUserByUsername(ctx context.Context, arg ExistsUserByUser
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, email, phone_number, status, created_at, updated_at, deleted_at
+SELECT id, username, email, phone_number, status, created_at, updated_at, deleted_at, password_hash
 FROM users u
 WHERE u.username = $1
   AND deleted_at IS NULL
@@ -96,6 +101,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, arg GetUserByUsernamePa
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.PasswordHash,
 	)
 	return i, err
 }
@@ -107,7 +113,7 @@ SET
   email = $2,
   updated_at = now()
 WHERE id = $3
-RETURNING id, username, email, phone_number, status, created_at, updated_at, deleted_at
+RETURNING id, username, email, phone_number, status, created_at, updated_at, deleted_at, password_hash
 `
 
 type UpdateContactParams struct {
@@ -128,6 +134,7 @@ func (q *Queries) UpdateContact(ctx context.Context, arg UpdateContactParams) (U
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.PasswordHash,
 	)
 	return i, err
 }

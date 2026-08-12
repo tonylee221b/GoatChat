@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"time"
 
 	identitysqlc "GoatChat/GoatChat/internal/identity/adapter/out/sqlc"
 	"GoatChat/GoatChat/internal/identity/domain"
@@ -41,10 +40,11 @@ func (u *UserPgRepository) Save(ctx context.Context, user domain.User) error {
 	q := u.queries(ctx)
 
 	_, err := q.CreateUser(ctx, identitysqlc.CreateUserParams{
-		ID:          user.ID,
-		Username:    user.Username.Value,
-		Email:       &user.Contact.Email.Value,
-		PhoneNumber: &user.Contact.PhoneNumber.Value,
+		ID:           user.ID,
+		Username:     user.Username.Value,
+		PasswordHash: user.PasswordHash.Value,
+		Email:        &user.Contact.Email.Value,
+		PhoneNumber:  &user.Contact.PhoneNumber.Value,
 	})
 	if err != nil {
 		slog.Info("failed to create user", "user", user)
@@ -89,7 +89,7 @@ func (u *UserPgRepository) FindByUsername(ctx context.Context, un domain.Usernam
 	}
 
 	slog.Debug("user found from db", "user", userFromDB.Username)
-	return toDomain(userFromDB), nil
+	return toUserDomain(userFromDB), nil
 }
 
 func (u *UserPgRepository) queries(ctx context.Context) *identitysqlc.Queries {
@@ -104,20 +104,11 @@ func (u *UserPgRepository) db(ctx context.Context) identitysqlc.DBTX {
 	return u.pool
 }
 
-func toDomain(ufd identitysqlc.User) *domain.User {
+func toUserDomain(ufd identitysqlc.User) *domain.User {
 	un, _ := domain.NewUsername(ufd.Username)
+	pwHash, _ := domain.NewPasswordHash(ufd.PasswordHash)
 	c, _ := domain.NewContact(*ufd.PhoneNumber, *ufd.Email)
+	a := domain.NewAudit(ufd.CreatedAt, ufd.UpdatedAt, ufd.DeletedAt)
 
-	var deletedAt *time.Time
-	if !ufd.DeletedAt.Valid {
-		deletedAt = nil
-	}
-	a := domain.NewAudit(ufd.CreatedAt.Time, ufd.UpdatedAt.Time, deletedAt)
-
-	return &domain.User{
-		ID:       ufd.ID,
-		Username: un,
-		Contact:  c,
-		Audit:    a,
-	}
+	return domain.RestoreUser(ufd.ID, un, pwHash, c, a)
 }

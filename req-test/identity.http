@@ -1,0 +1,69 @@
+@base_url=http://localhost:8080
+@username=tony
+@password=test1234
+
+# 위에서부터 회원가입 -> 로그인 -> Refresh -> 로그아웃 순서로 실행하세요.
+# 같은 username으로 회원가입을 다시 실행하면 중복 사용자 오류가 발생합니다.
+
+### 회원가입
+POST {{base_url}}/api/v1/users/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+  client.test("회원가입에 성공한다", () => {
+    client.assert(response.status === 201, "응답 코드가 201이어야 합니다");
+  });
+%}
+
+### 로그인
+POST {{base_url}}/api/v1/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+  client.test("로그인하고 액세스 토큰을 발급한다", () => {
+    client.assert(response.status === 200, "응답 코드가 200이어야 합니다");
+    client.assert(
+      typeof response.body.access_token === "string" &&
+        response.body.access_token.length > 0,
+      "access_token이 있어야 합니다"
+    );
+  });
+%}
+
+### Refresh
+# @attach-cookie-jar
+POST {{base_url}}/api/v1/auth/refresh
+Accept: application/json
+
+> {%
+  client.test("Refresh 토큰으로 액세스 토큰을 재발급한다", () => {
+    client.assert(response.status === 200, "응답 코드가 200이어야 합니다");
+    client.assert(
+      typeof response.body.access_token === "string" &&
+        response.body.access_token.length > 0,
+      "새 access_token이 있어야 합니다"
+    );
+  });
+%}
+
+### 로그아웃
+# @attach-cookie-jar
+POST {{base_url}}/api/v1/auth/logout
+
+> {%
+  client.test("로그아웃에 성공한다", () => {
+    client.assert(response.status === 204, "응답 코드가 204여야 합니다");
+  });
+%}

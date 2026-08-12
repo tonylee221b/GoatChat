@@ -5,17 +5,28 @@
 package identitysqlc
 
 import (
+	"time"
+
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Session struct {
+	ID               uuid.UUID  `json:"id"`
+	UserID           uuid.UUID  `json:"user_id"`
+	RefreshTokenHash []byte     `json:"refresh_token_hash"`
+	ExpiresAt        time.Time  `json:"expires_at"`
+	RevokedAt        *time.Time `json:"revoked_at"`
+	CreatedAt        time.Time  `json:"created_at"`
+}
+
 type User struct {
-	ID          uuid.UUID          `json:"id"`
-	Username    string             `json:"username"`
-	Email       *string            `json:"email"`
-	PhoneNumber *string            `json:"phone_number"`
-	Status      string             `json:"status"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	ID           uuid.UUID  `json:"id"`
+	Username     string     `json:"username"`
+	Email        *string    `json:"email"`
+	PhoneNumber  *string    `json:"phone_number"`
+	Status       string     `json:"status"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	DeletedAt    *time.Time `json:"deleted_at"`
+	PasswordHash string     `json:"password_hash"`
 }

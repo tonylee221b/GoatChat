@@ -21,36 +21,28 @@ func NewUserService(tx dbtx.Tx, userRepo port.UserRepository, pwHasher port.Pass
 }
 
 func (u *UserService) Register(ctx context.Context, username domain.Username, plainPW string) error {
-	return u.tx.WithinTx(ctx, func(ctx context.Context) error {
-		isExist, err := u.repo.ExistsByUsername(ctx, username)
-		if err != nil {
-			return err
-		}
+	isExist, err := u.repo.ExistsByUsername(ctx, username)
+	if err != nil {
+		return err
+	}
 
-		if isExist {
-			slog.Info("user already exists", "username", username)
-			return errors.New(domain.ErrUserAlreadyExist)
-		}
+	if isExist {
+		slog.Info("user already exists", "username", username)
+		return errors.New(domain.ErrUserAlreadyExist)
+	}
 
-		hashedPW, err := u.pwHasher.Hash(plainPW)
-		if err != nil {
-			return err
-		}
+	hashedPW, err := u.pwHasher.Hash(plainPW)
+	if err != nil {
+		return err
+	}
 
-		pwHash, err := domain.NewPasswordHash(hashedPW)
-		if err != nil {
-			return err
-		}
+	pwHash, err := domain.NewPasswordHash(hashedPW)
+	if err != nil {
+		return err
+	}
 
-		user := domain.NewUser(username, pwHash)
-
-		if err = u.repo.Save(ctx, *user); err != nil {
-			slog.Error("db error. user cannot be saved", "error", err)
-			return err
-		}
-
-		return nil
-	})
+	user := domain.NewUser(username, pwHash)
+	return u.repo.Save(ctx, *user)
 }
 
 func (u *UserService) FindByUsername(ctx context.Context, un domain.Username) (domain.User, error) {

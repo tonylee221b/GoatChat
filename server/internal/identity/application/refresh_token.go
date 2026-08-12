@@ -11,26 +11,26 @@ import (
 
 const refreshTokenByteSize = 32
 
-type GeneratedRefreshToken struct {
+type generatedRefreshToken struct {
 	Plain string
 	Hash  domain.RefreshTokenHash
 }
 
-func generateRefreshToken() (GeneratedRefreshToken, error) {
+func generateRefreshToken() (generatedRefreshToken, error) {
 	randomBytes := make([]byte, refreshTokenByteSize)
 
 	if _, err := rand.Read(randomBytes); err != nil {
 		slog.Error(domain.ErrGenerateRefreshToken, "error", err.Error())
-		return GeneratedRefreshToken{}, errors.New(domain.ErrGenerateRefreshToken)
+		return generatedRefreshToken{}, errors.New(domain.ErrGenerateRefreshToken)
 	}
 
 	plain := base64.RawURLEncoding.EncodeToString(randomBytes)
 	hash, err := domain.NewRefreshTokenHash(plain)
 	if err != nil {
-		return GeneratedRefreshToken{}, err
+		return generatedRefreshToken{}, err
 	}
 
-	return GeneratedRefreshToken{
+	return generatedRefreshToken{
 		Plain: plain,
 		Hash:  hash,
 	}, nil

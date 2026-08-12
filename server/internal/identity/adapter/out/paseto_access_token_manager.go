@@ -6,38 +6,15 @@ import (
 	"time"
 
 	"GoatChat/GoatChat/internal/identity/application/port"
+	"GoatChat/GoatChat/internal/identity/domain"
 
 	"aidanwoods.dev/go-paseto"
-)
-
-const (
-	ErrIssuerRequired   = "issuer is required"
-	ErrAudienceRequired = "audience is required"
-	ErrTTLNotPositive   = "ttl must be positive"
-	ErrClockRequired    = "clock is required"
-
-	ErrUserIDRequired    = "user id is required"
-	ErrSessionIDRequired = "session id is required"
-
-	ErrInvalidAccessToken = "invalid access token"
-
-	ErrMissingClaim = "claim is missing"
 )
 
 const (
 	ClaimKeySessionID = "sid"
 	ClaimKeyTokenType = "type"
 )
-
-type Clock interface {
-	Now() time.Time
-}
-
-type SystemClock struct{}
-
-func (SystemClock) Now() time.Time {
-	return time.Now().UTC()
-}
 
 type PasetoAccessTokenManager struct {
 	secretKey paseto.V4AsymmetricSecretKey
@@ -46,33 +23,26 @@ type PasetoAccessTokenManager struct {
 	issuer   string
 	audience string
 	ttl      time.Duration
-	clock    Clock
 }
 
 func NewPasetoAccessTokenManager(
 	sk paseto.V4AsymmetricSecretKey,
 	issuer, audience string,
 	ttl time.Duration,
-	clock Clock,
 ) (*PasetoAccessTokenManager, error) {
 	if issuer == "" {
-		slog.Error(ErrIssuerRequired)
-		return nil, errors.New(ErrIssuerRequired)
+		slog.Error(domain.ErrTokenIssuerRequired)
+		return nil, errors.New(domain.ErrInvalidConfig)
 	}
 
 	if audience == "" {
-		slog.Error(ErrAudienceRequired)
-		return nil, errors.New(ErrAudienceRequired)
+		slog.Error(domain.ErrTokenAudienceRequired)
+		return nil, errors.New(domain.ErrInvalidConfig)
 	}
 
 	if ttl <= 0 {
-		slog.Error(ErrAudienceRequired)
-		return nil, errors.New(ErrTTLNotPositive)
-	}
-
-	if clock == nil {
-		slog.Error(ErrClockRequired)
-		return nil, errors.New(ErrClockRequired)
+		slog.Error(domain.ErrTokenTTLNotPositive)
+		return nil, errors.New(domain.ErrInvalidConfig)
 	}
 
 	return &PasetoAccessTokenManager{
@@ -81,22 +51,21 @@ func NewPasetoAccessTokenManager(
 		issuer:    issuer,
 		audience:  audience,
 		ttl:       ttl,
-		clock:     clock,
 	}, nil
 }
 
 func (p *PasetoAccessTokenManager) Issue(userID, sessionID string) (string, error) {
 	if userID == "" {
-		slog.Info(ErrUserIDRequired)
-		return "", errors.New(ErrUserIDRequired)
+		slog.Info(domain.ErrTokenUserIDRequired)
+		return "", errors.New(domain.ErrTokenUserIDRequired)
 	}
 
 	if sessionID == "" {
-		slog.Info(ErrSessionIDRequired)
-		return "", errors.New(ErrSessionIDRequired)
+		slog.Info(domain.ErrTokenSessionIDRequired)
+		return "", errors.New(domain.ErrTokenSessionIDRequired)
 	}
 
-	now := p.clock.Now()
+	now := time.Now().UTC()
 	expiresAt := now.Add(p.ttl)
 
 	token := paseto.NewToken()
@@ -118,8 +87,8 @@ func (p *PasetoAccessTokenManager) Issue(userID, sessionID string) (string, erro
 
 func (p *PasetoAccessTokenManager) Verify(rawToken string) (port.AccessTokenClaims, error) {
 	if rawToken == "" {
-		slog.Info(ErrInvalidAccessToken)
-		return port.AccessTokenClaims{}, errors.New(ErrInvalidAccessToken)
+		slog.Info(domain.ErrInvalidAccessToken)
+		return port.AccessTokenClaims{}, errors.New(domain.ErrInvalidCredentials)
 	}
 
 	parser := paseto.NewParserForValidNow()
@@ -131,19 +100,19 @@ func (p *PasetoAccessTokenManager) Verify(rawToken string) (port.AccessTokenClai
 	token, err := parser.ParseV4Public(p.publicKey, rawToken, nil)
 	if err != nil {
 		slog.Info("failed to parse access token")
-		return port.AccessTokenClaims{}, errors.New(ErrInvalidAccessToken)
+		return port.AccessTokenClaims{}, errors.New(domain.ErrInvalidCredentials)
 	}
 
 	userID, err := token.GetSubject()
 	if err != nil || userID == "" {
-		slog.Info(ErrMissingClaim, "claim field", "subject (user id)")
-		return port.AccessTokenClaims{}, errors.New(ErrInvalidAccessToken)
+		slog.Info(domain.ErrTokenMissingClaim, "claim field", "subject (user id)")
+		return port.AccessTokenClaims{}, errors.New(domain.ErrInvalidCredentials)
 	}
 
 	sessionID, err := token.GetString(ClaimKeySessionID)
 	if err != nil || sessionID == "" {
-		slog.Info(ErrMissingClaim, "claim field", "sid (session id)")
-		return port.AccessTokenClaims{}, errors.New(ErrInvalidAccessToken)
+		slog.Info(domain.ErrTokenMissingClaim, "claim field", "sid (session id)")
+		return port.AccessTokenClaims{}, errors.New(domain.ErrInvalidCredentials)
 	}
 
 	tokenType, err := token.GetString(ClaimKeyTokenType)
@@ -151,15 +120,16 @@ func (p *PasetoAccessTokenManager) Verify(rawToken string) (port.AccessTokenClai
 		if tokenType != "access" {
 			slog.Info("token type is not access")
 		}
-		return port.AccessTokenClaims{}, errors.New(ErrInvalidAccessToken)
+		return port.AccessTokenClaims{}, errors.New(domain.ErrInvalidCredentials)
 	}
 
 	expiresAt, err := token.GetExpiration()
 	if err != nil {
-		slog.Info(ErrMissingClaim, "claim field", "exp")
-		return port.AccessTokenClaims{}, errors.New(ErrInvalidAccessToken)
+		slog.Info(domain.ErrTokenMissingClaim, "claim field", "exp")
+		return port.AccessTokenClaims{}, errors.New(domain.ErrInvalidCredentials)
 	}
 
+	slog.Debug("access token verification complete")
 	return port.AccessTokenClaims{
 		UserID:    userID,
 		SessionID: sessionID,

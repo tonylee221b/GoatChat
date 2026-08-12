@@ -24,20 +24,6 @@ CREATE UNIQUE INDEX users_email_unique_active
   ON users (lower(email))
   WHERE deleted_at IS NULL;
 
-CREATE TABLE auth_credentials (
-  user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  password_hash text NOT NULL,
-  password_algorithm varchar(32) NOT NULL,
-  password_changed_at timestamptz NOT NULL DEFAULT now(),
-  failed_login_count integer NOT NULL DEFAULT 0,
-  locked_until timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT auth_credentials_password_hash_not_blank CHECK (length(btrim(password_hash)) > 0),
-  CONSTRAINT auth_credentials_password_algorithm_check CHECK (password_algorithm IN ('bcrypt', 'argon2id')),
-  CONSTRAINT auth_credentials_failed_login_count_check CHECK (failed_login_count >= 0)
-);
-
 CREATE TABLE chat_rooms (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   room_type varchar(16) NOT NULL,
@@ -124,5 +110,4 @@ ALTER TABLE chat_rooms
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS chat_room_members;
 DROP TABLE IF EXISTS chat_rooms;
-DROP TABLE IF EXISTS auth_credentials;
 DROP TABLE IF EXISTS users;

@@ -23,6 +23,22 @@ func NewUser(username Username, pwHash PasswordHash) *User {
 	}
 }
 
+func RestoreUser(
+	id uuid.UUID,
+	username Username,
+	pwHash PasswordHash,
+	contact Contact,
+	audit Audit,
+) *User {
+	return &User{
+		ID:           id,
+		Username:     username,
+		PasswordHash: pwHash,
+		Contact:      contact,
+		Audit:        audit,
+	}
+}
+
 func (u *User) UpdateContact(contact Contact) error {
 	c, err := NewContact(contact.PhoneNumber.Value, contact.Email.Value)
 	if err != nil {
