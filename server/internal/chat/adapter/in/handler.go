@@ -43,15 +43,15 @@ func NewChatHandler(crSvc application.ChatService) *ChatHandler {
 }
 
 const (
-	ErrDecodeReq  = "failed to decode request"
-	ErrInvalidRId = "invalid room id"
-	ErrInvalidRt  = "invalid room type"
-	ErrInvalidRn  = "invalid room name"
-	ErrInvalidRd  = "invalid room description"
-	ErrInvalidOID = "invalid owner id"
-	ErrCreateCr   = "failed to create chat room"
-	ErrDeleteCr   = "failed to delete chat room"
-	ErrUpdateCr   = "failed to update chat room"
+	ErrDecodeReq       = "failed to decode request"
+	ErrInvalidRoomID   = "invalid room id"
+	ErrInvalidRoomType = "invalid room type"
+	ErrInvalidRoomName = "invalid room name"
+	ErrInvalidRoomDesc = "invalid room description"
+	ErrInvalidOwnerID  = "invalid owner id"
+	ErrCreateChatroom  = "failed to create chat room"
+	ErrDeleteChatroom  = "failed to delete chat room"
+	ErrUpdateChatroom  = "failed to update chat room"
 )
 
 func (h *ChatHandler) CreateChatroom(w http.ResponseWriter, r *http.Request) {
@@ -65,36 +65,36 @@ func (h *ChatHandler) CreateChatroom(w http.ResponseWriter, r *http.Request) {
 
 	rt, err := domain.NewRoomType(req.RoomType)
 	if err != nil {
-		slog.Info(ErrInvalidRt)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRt)
+		slog.Info(ErrInvalidRoomType)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomType)
 		return
 	}
 
 	rn, err := domain.NewRoomName(req.RoomName)
 	if err != nil {
-		slog.Info(ErrInvalidRn)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRn)
+		slog.Info(ErrInvalidRoomName)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomName)
 		return
 	}
 
 	rd, err := domain.NewRoomDescription(req.Description)
 	if err != nil {
-		slog.Info(ErrInvalidRd)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRd)
+		slog.Info(ErrInvalidRoomDesc)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomDesc)
 		return
 	}
 
 	oid, err := domain.NewRoomOwnerId(req.OwnerID)
 	if err != nil {
-		slog.Info(ErrInvalidOID)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidOID)
+		slog.Info(ErrInvalidOwnerID)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidOwnerID)
 		return
 	}
 
 	room, err := h.crSvc.CreateChatroom(r.Context(), rt, rn, rd, oid)
 	if err != nil {
-		slog.Error(ErrCreateCr)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrCreateCr)
+		slog.Error(ErrCreateChatroom)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrCreateChatroom)
 		return
 	}
 
@@ -116,15 +116,15 @@ func (h *ChatHandler) DeleteChatroom(w http.ResponseWriter, r *http.Request) {
 
 	id, err := uuid.Parse(req.RoomID)
 	if err != nil {
-		slog.Info(ErrInvalidRId)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRId)
+		slog.Info(ErrInvalidRoomID)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomID)
 		return
 	}
 
 	err = h.crSvc.DeleteChatroom(r.Context(), id)
 	if err != nil {
-		slog.Error(ErrDeleteCr)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrDeleteCr)
+		slog.Error(ErrDeleteChatroom)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrDeleteChatroom)
 		return
 	}
 
@@ -142,36 +142,36 @@ func (h *ChatHandler) UpdateChatroom(w http.ResponseWriter, r *http.Request) {
 
 	id, err := uuid.Parse(req.RoomID)
 	if err != nil {
-		slog.Info(ErrInvalidRId)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRId)
+		slog.Info(ErrInvalidRoomID)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomID)
 		return
 	}
 
 	rt, err := domain.NewRoomType(req.RoomType)
 	if err != nil {
-		slog.Info(ErrInvalidRt)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRt)
+		slog.Info(ErrInvalidRoomType)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomType)
 		return
 	}
 
 	rn, err := domain.NewRoomName(req.RoomName)
 	if err != nil {
-		slog.Info(ErrInvalidRn)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRn)
+		slog.Info(ErrInvalidRoomName)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomName)
 		return
 	}
 
 	rd, err := domain.NewRoomDescription(req.Description)
 	if err != nil {
-		slog.Info(ErrInvalidRd)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRd)
+		slog.Info(ErrInvalidRoomDesc)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrInvalidRoomDesc)
 		return
 	}
 
 	err = h.crSvc.UpdateChatroom(r.Context(), id, rt, rn, rd)
 	if err != nil {
-		slog.Error(ErrUpdateCr)
-		jsonutil.WriteError(w, http.StatusBadRequest, ErrUpdateCr)
+		slog.Error(ErrUpdateChatroom)
+		jsonutil.WriteError(w, http.StatusBadRequest, ErrUpdateChatroom)
 		return
 	}
 
