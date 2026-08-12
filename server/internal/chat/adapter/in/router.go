@@ -10,7 +10,7 @@ type ChatRouter struct {
 
 const (
 	ChatRouteGroup     = "/chat"
-	ChatroomRouteGruop = "/chatroom"
+	ChatroomRouteGroup = "/chatroom"
 )
 
 func NewChatRouter(h *ChatHandler) *ChatRouter {
@@ -19,6 +19,8 @@ func NewChatRouter(h *ChatHandler) *ChatRouter {
 
 func (cr *ChatRouter) route(r chi.Router) {
 	r.Route(ChatRouteGroup, func(r chi.Router) {
-		r.Post(string(ChatroomRouteGruop), cr.h.CreateChatroom)
+		r.Post(string(ChatroomRouteGroup), cr.h.CreateChatroom)
+		r.Patch(string(ChatroomRouteGroup), cr.h.UpdateChatroom)
+		r.Delete(string(ChatroomRouteGroup), cr.h.DeleteChatroom)
 	})
 }

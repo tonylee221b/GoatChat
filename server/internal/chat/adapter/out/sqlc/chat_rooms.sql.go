@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createChatRoom = `-- name: CreateChatRoom :one
@@ -60,6 +61,21 @@ func (q *Queries) CreateChatRoom(ctx context.Context, arg CreateChatRoomParams) 
 	return i, err
 }
 
+const deleteChatRoomByID = `-- name: DeleteChatRoomByID :exec
+UPDATE chat_rooms
+SET deleted_at = now()
+WHERE id = $1
+`
+
+type DeleteChatRoomByIDParams struct {
+	ID uuid.UUID `json:"id"`
+}
+
+func (q *Queries) DeleteChatRoomByID(ctx context.Context, arg DeleteChatRoomByIDParams) error {
+	_, err := q.db.Exec(ctx, deleteChatRoomByID, arg.ID)
+	return err
+}
+
 const getChatRoomByID = `-- name: GetChatRoomByID :one
 SELECT id, room_type, name, description, owner_id, last_message_id, last_message_at, created_at, updated_at, deleted_at
 FROM chat_rooms
@@ -87,4 +103,33 @@ func (q *Queries) GetChatRoomByID(ctx context.Context, arg GetChatRoomByIDParams
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const updateChatRoomByID = `-- name: UpdateChatRoomByID :exec
+UPDATE chat_rooms
+SET room_type = $1,
+    name = $2,
+    description = $3,
+    last_message_id = $4,
+    updated_at = now()
+WHERE id = $5
+`
+
+type UpdateChatRoomByIDParams struct {
+	RoomType      string      `json:"room_type"`
+	Name          *string     `json:"name"`
+	Description   *string     `json:"description"`
+	LastMessageID pgtype.UUID `json:"last_message_id"`
+	ID            uuid.UUID   `json:"id"`
+}
+
+func (q *Queries) UpdateChatRoomByID(ctx context.Context, arg UpdateChatRoomByIDParams) error {
+	_, err := q.db.Exec(ctx, updateChatRoomByID,
+		arg.RoomType,
+		arg.Name,
+		arg.Description,
+		arg.LastMessageID,
+		arg.ID,
+	)
+	return err
 }

@@ -8,6 +8,7 @@ import (
 	"GoatChat/GoatChat/internal/chat/domain"
 	"context"
 
+	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -38,12 +39,194 @@ func (_m *MockChatRepository) EXPECT() *MockChatRepository_Expecter {
 	return &MockChatRepository_Expecter{mock: &_m.Mock}
 }
 
-// SaveChatroom provides a mock function for the type MockChatRepository
-func (_mock *MockChatRepository) SaveChatroom(ctx context.Context, cr domain.ChatRoom) error {
+// Delete provides a mock function for the type MockChatRepository
+func (_mock *MockChatRepository) Delete(ctx context.Context, cId uuid.UUID) error {
+	ret := _mock.Called(ctx, cId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, cId)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockChatRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockChatRepository_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cId uuid.UUID
+func (_e *MockChatRepository_Expecter) Delete(ctx interface{}, cId interface{}) *MockChatRepository_Delete_Call {
+	return &MockChatRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, cId)}
+}
+
+func (_c *MockChatRepository_Delete_Call) Run(run func(ctx context.Context, cId uuid.UUID)) *MockChatRepository_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockChatRepository_Delete_Call) Return(err error) *MockChatRepository_Delete_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockChatRepository_Delete_Call) RunAndReturn(run func(ctx context.Context, cId uuid.UUID) error) *MockChatRepository_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ExistsByChatroomId provides a mock function for the type MockChatRepository
+func (_mock *MockChatRepository) ExistsByChatroomId(ctx context.Context, cId uuid.UUID) bool {
+	ret := _mock.Called(ctx, cId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExistsByChatroomId")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) bool); ok {
+		r0 = returnFunc(ctx, cId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockChatRepository_ExistsByChatroomId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExistsByChatroomId'
+type MockChatRepository_ExistsByChatroomId_Call struct {
+	*mock.Call
+}
+
+// ExistsByChatroomId is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cId uuid.UUID
+func (_e *MockChatRepository_Expecter) ExistsByChatroomId(ctx interface{}, cId interface{}) *MockChatRepository_ExistsByChatroomId_Call {
+	return &MockChatRepository_ExistsByChatroomId_Call{Call: _e.mock.On("ExistsByChatroomId", ctx, cId)}
+}
+
+func (_c *MockChatRepository_ExistsByChatroomId_Call) Run(run func(ctx context.Context, cId uuid.UUID)) *MockChatRepository_ExistsByChatroomId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockChatRepository_ExistsByChatroomId_Call) Return(b bool) *MockChatRepository_ExistsByChatroomId_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockChatRepository_ExistsByChatroomId_Call) RunAndReturn(run func(ctx context.Context, cId uuid.UUID) bool) *MockChatRepository_ExistsByChatroomId_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FindByChatroomId provides a mock function for the type MockChatRepository
+func (_mock *MockChatRepository) FindByChatroomId(ctx context.Context, cId uuid.UUID) (*domain.ChatRoom, error) {
+	ret := _mock.Called(ctx, cId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindByChatroomId")
+	}
+
+	var r0 *domain.ChatRoom
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*domain.ChatRoom, error)); ok {
+		return returnFunc(ctx, cId)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *domain.ChatRoom); ok {
+		r0 = returnFunc(ctx, cId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.ChatRoom)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, cId)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockChatRepository_FindByChatroomId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FindByChatroomId'
+type MockChatRepository_FindByChatroomId_Call struct {
+	*mock.Call
+}
+
+// FindByChatroomId is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cId uuid.UUID
+func (_e *MockChatRepository_Expecter) FindByChatroomId(ctx interface{}, cId interface{}) *MockChatRepository_FindByChatroomId_Call {
+	return &MockChatRepository_FindByChatroomId_Call{Call: _e.mock.On("FindByChatroomId", ctx, cId)}
+}
+
+func (_c *MockChatRepository_FindByChatroomId_Call) Run(run func(ctx context.Context, cId uuid.UUID)) *MockChatRepository_FindByChatroomId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockChatRepository_FindByChatroomId_Call) Return(chatRoom *domain.ChatRoom, err error) *MockChatRepository_FindByChatroomId_Call {
+	_c.Call.Return(chatRoom, err)
+	return _c
+}
+
+func (_c *MockChatRepository_FindByChatroomId_Call) RunAndReturn(run func(ctx context.Context, cId uuid.UUID) (*domain.ChatRoom, error)) *MockChatRepository_FindByChatroomId_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Save provides a mock function for the type MockChatRepository
+func (_mock *MockChatRepository) Save(ctx context.Context, cr domain.ChatRoom) error {
 	ret := _mock.Called(ctx, cr)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SaveChatroom")
+		panic("no return value specified for Save")
 	}
 
 	var r0 error
@@ -55,19 +238,19 @@ func (_mock *MockChatRepository) SaveChatroom(ctx context.Context, cr domain.Cha
 	return r0
 }
 
-// MockChatRepository_SaveChatroom_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveChatroom'
-type MockChatRepository_SaveChatroom_Call struct {
+// MockChatRepository_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
+type MockChatRepository_Save_Call struct {
 	*mock.Call
 }
 
-// SaveChatroom is a helper method to define mock.On call
+// Save is a helper method to define mock.On call
 //   - ctx context.Context
 //   - cr domain.ChatRoom
-func (_e *MockChatRepository_Expecter) SaveChatroom(ctx interface{}, cr interface{}) *MockChatRepository_SaveChatroom_Call {
-	return &MockChatRepository_SaveChatroom_Call{Call: _e.mock.On("SaveChatroom", ctx, cr)}
+func (_e *MockChatRepository_Expecter) Save(ctx interface{}, cr interface{}) *MockChatRepository_Save_Call {
+	return &MockChatRepository_Save_Call{Call: _e.mock.On("Save", ctx, cr)}
 }
 
-func (_c *MockChatRepository_SaveChatroom_Call) Run(run func(ctx context.Context, cr domain.ChatRoom)) *MockChatRepository_SaveChatroom_Call {
+func (_c *MockChatRepository_Save_Call) Run(run func(ctx context.Context, cr domain.ChatRoom)) *MockChatRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -85,12 +268,69 @@ func (_c *MockChatRepository_SaveChatroom_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockChatRepository_SaveChatroom_Call) Return(err error) *MockChatRepository_SaveChatroom_Call {
+func (_c *MockChatRepository_Save_Call) Return(err error) *MockChatRepository_Save_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockChatRepository_SaveChatroom_Call) RunAndReturn(run func(ctx context.Context, cr domain.ChatRoom) error) *MockChatRepository_SaveChatroom_Call {
+func (_c *MockChatRepository_Save_Call) RunAndReturn(run func(ctx context.Context, cr domain.ChatRoom) error) *MockChatRepository_Save_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Update provides a mock function for the type MockChatRepository
+func (_mock *MockChatRepository) Update(ctx context.Context, cr domain.ChatRoom) error {
+	ret := _mock.Called(ctx, cr)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ChatRoom) error); ok {
+		r0 = returnFunc(ctx, cr)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockChatRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockChatRepository_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cr domain.ChatRoom
+func (_e *MockChatRepository_Expecter) Update(ctx interface{}, cr interface{}) *MockChatRepository_Update_Call {
+	return &MockChatRepository_Update_Call{Call: _e.mock.On("Update", ctx, cr)}
+}
+
+func (_c *MockChatRepository_Update_Call) Run(run func(ctx context.Context, cr domain.ChatRoom)) *MockChatRepository_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ChatRoom
+		if args[1] != nil {
+			arg1 = args[1].(domain.ChatRoom)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockChatRepository_Update_Call) Return(err error) *MockChatRepository_Update_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockChatRepository_Update_Call) RunAndReturn(run func(ctx context.Context, cr domain.ChatRoom) error) *MockChatRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

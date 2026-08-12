@@ -18,7 +18,7 @@ const (
 func NewRoomType(rt string) (RoomType, error) {
 	if rt != string(RoomTypeDirect) && rt != string(RoomTypeGroup) {
 		slog.Info("invalid room type, input room type is : ", "rt", rt)
-		return RoomTypeUnknown, errors.New("invalid room type")
+		return RoomTypeUnknown, errors.New(ErrInvalidRoomType)
 	}
 
 	return RoomType(rt), nil
@@ -31,7 +31,7 @@ type RoomName struct {
 func NewRoomName(rn string) (RoomName, error) {
 	if rn == "" {
 		slog.Info("invalid room name, input room name is empty")
-		return RoomName{}, errors.New("room name is empty")
+		return RoomName{}, errors.New(ErrInvalidRoomName)
 	}
 
 	return RoomName{rn}, nil
@@ -46,7 +46,7 @@ const DescriptionMaxSize = 255
 func NewRoomDescription(rd string) (RoomDescription, error) {
 	if len(rd) > DescriptionMaxSize {
 		slog.Info("room description to large")
-		return RoomDescription{}, errors.New("room description too many contents")
+		return RoomDescription{}, errors.New(ErrInvalidRoomDescription)
 	}
 	return RoomDescription{rd}, nil
 }
@@ -58,12 +58,12 @@ type RoomOwnerId struct {
 func NewRoomOwnerId(oid string) (RoomOwnerId, error) {
 	if oid == "" {
 		slog.Info("invalid owner id, input owner id is empty")
-		return RoomOwnerId{}, errors.New("owner id is empty")
+		return RoomOwnerId{}, errors.New(ErrInvalidRoomOwnerId)
 	}
 
 	if _, err := uuid.Parse(oid); err != nil {
 		slog.Info("invalid owner id, input owner id is: ", "ownerId", oid)
-		return RoomOwnerId{}, errors.New("invalid owner id")
+		return RoomOwnerId{}, errors.New(ErrInvalidRoomOwnerId)
 	}
 
 	return RoomOwnerId{oid}, nil
