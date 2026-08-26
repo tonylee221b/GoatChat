@@ -11,8 +11,9 @@ packages:
       ChatRepository:
   GoatChat/GoatChat/internal/identity/application/port:
     config:
+      all: true
       dir: internal/identity/application/port/mocks
-      filename: "user_repository_mock.go"
+      filename: "{{.InterfaceName | snakecase}}_mock.go"
       pkgname: mocks
       structname: "Mock{{.InterfaceName}}"
     interfaces:

@@ -19,8 +19,8 @@ func NewPgxTx(pool *pgxpool.Pool) *pgxTx {
 }
 
 func (p *pgxTx) WithinTx(ctx context.Context, fn func(ctx context.Context) error) error {
-	if FromContext(ctx) != nil {
-		slog.Debug("tx already exists", "tx_key", ctx.Value(pgxTxKey{}).(pgx.Tx))
+	if tx := FromContext(ctx); tx != nil {
+		slog.Debug("tx already exists")
 		return fn(ctx)
 	}
 
@@ -31,18 +31,18 @@ func (p *pgxTx) WithinTx(ctx context.Context, fn func(ctx context.Context) error
 	}
 
 	defer func() {
-		slog.Debug("tx rolled back", "tx_key", ctx.Value(pgxTxKey{}).(pgx.Tx))
+		slog.Debug("tx rolled back")
 		_ = pgxTx.Rollback(ctx)
 	}()
 
 	txCtx := context.WithValue(ctx, pgxTxKey{}, pgxTx)
 
 	if err := fn(txCtx); err != nil {
-		slog.Debug("tx roll back triggered", "tx_key", ctx.Value(pgxTxKey{}).(pgx.Tx))
+		slog.Debug("tx roll back triggered")
 		return err // Rollback triggered
 	}
 
-	slog.Debug("tx committed", "tx_key", ctx.Value(pgxTxKey{}).(pgx.Tx))
+	slog.Debug("tx committed")
 	return pgxTx.Commit(ctx)
 }
 

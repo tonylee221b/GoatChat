@@ -12,12 +12,13 @@ COMPOSE := docker compose --env-file $(ENV_FILE)
 GOOSE := go run github.com/pressly/goose/v3/cmd/goose@v3.27.1
 SQLC := go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 
-.PHONY: help run build test test-race fmt vet tidy check clean db-up db-down db-migrate-up sqlc-generate require-env-file
+.PHONY: help run build mocks test test-race fmt vet tidy check clean db-up db-down db-migrate-up db-migrate-down sqlc-generate require-env-file
 
 help:
 	@echo "Available targets:"
 	@echo "  make run ENV=local          - Run the application from $(CMD_DIR)"
 	@echo "  make build                  - Build the application binary into $(BUILD_DIR)"
+	@echo "  make mocks                  - Build the mocks of interfaces"
 	@echo "  make test                   - Run all Go tests"
 	@echo "  make test-race              - Run all Go tests with the race detector"
 	@echo "  make fmt                    - Format all Go packages"
@@ -27,6 +28,7 @@ help:
 	@echo "  make db-up ENV=local        - Start PostgreSQL and Redis with Docker Compose"
 	@echo "  make db-down ENV=local      - Stop PostgreSQL and Redis"
 	@echo "  make db-migrate-up ENV=local - Apply PostgreSQL migration"
+	@echo "  make db-migrate-down ENV=local - Rollback PostgreSQL migration"
 	@echo "  make sqlc-generate          - Generate typed database code"
 	@echo "  make clean                  - Remove build artifacts"
 	@echo ""
@@ -42,6 +44,9 @@ run: require-env-file
 build:
 	mkdir -p $(BUILD_DIR)
 	go build -o $(BUILD_DIR)/$(APP_NAME) $(CMD_DIR)
+
+mocks:
+	mockery
 
 test:
 	gotestsum --format testname -- -count=1 ./...
@@ -71,6 +76,9 @@ db-down: require-env-file
 
 db-migrate-up: require-env-file
 	$(GOOSE) -dir $(MIGRATIONS_DIR) postgres "$(DATABASE_URL)" up
+
+db-migrate-down: require-env-file
+	$(GOOSE) -dir $(MIGRATIONS_DIR) postgres "$(DATABASE_URL)" down
 
 sqlc-generate:
 	$(SQLC) generate

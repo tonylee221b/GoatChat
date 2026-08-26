@@ -9,10 +9,15 @@ import (
 )
 
 type Querier interface {
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	ExistsUserByUsername(ctx context.Context, arg ExistsUserByUsernameParams) (bool, error)
+	FindByRefreshTokenHash(ctx context.Context, arg FindByRefreshTokenHashParams) (Session, error)
+	FindByRefreshTokenHashForUpdate(ctx context.Context, arg FindByRefreshTokenHashForUpdateParams) (Session, error)
 	GetUserByUsername(ctx context.Context, arg GetUserByUsernameParams) (User, error)
+	RevokeSession(ctx context.Context, arg RevokeSessionParams) error
 	UpdateContact(ctx context.Context, arg UpdateContactParams) (User, error)
+	UpdateRefreshTokenHash(ctx context.Context, arg UpdateRefreshTokenHashParams) (Session, error)
 }
 
 var _ Querier = (*Queries)(nil)

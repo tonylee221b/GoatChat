@@ -18,13 +18,14 @@ import (
 func TestRegisterUser(t *testing.T) {
 	for _, tt := range registerUserTestCases() {
 		t.Run(tt.name, func(t *testing.T) {
-			m := mocks.NewMockUserRepository(t)
+			mUserRepo := mocks.NewMockUserRepository(t)
+			mPWHasher := mocks.NewMockPasswordHasher(t)
 			if tt.setupMock != nil {
-				tt.setupMock(m)
+				tt.setupMock(mUserRepo, mPWHasher)
 			}
 
-			svc := application.NewUserService(testutils.StubTx{}, m)
-			err := svc.Register(context.Background(), tt.username)
+			svc := application.NewUserService(testutils.StubTx{}, mUserRepo, mPWHasher)
+			err := svc.Register(context.Background(), tt.username, tt.plainPassword)
 
 			if tt.wantErr != nil {
 				require.ErrorIs(t, err, tt.wantErr)
@@ -39,12 +40,13 @@ func TestRegisterUser(t *testing.T) {
 func TestFindUserByUsername(t *testing.T) {
 	for _, tt := range findUserByUsernameTestCases() {
 		t.Run(tt.name, func(t *testing.T) {
-			m := mocks.NewMockUserRepository(t)
+			mUserRepo := mocks.NewMockUserRepository(t)
+			mPWHasher := mocks.NewMockPasswordHasher(t)
 			if tt.setupMock != nil {
-				tt.setupMock(m)
+				tt.setupMock(mUserRepo)
 			}
 
-			svc := application.NewUserService(testutils.StubTx{}, m)
+			svc := application.NewUserService(testutils.StubTx{}, mUserRepo, mPWHasher)
 			foundUser, err := svc.FindByUsername(context.Background(), tt.username)
 
 			if tt.wantErr != nil {
@@ -63,12 +65,13 @@ func TestUpdateContact(t *testing.T) {
 
 	for _, tt := range updateContactTestCases() {
 		t.Run(tt.name, func(t *testing.T) {
-			m := mocks.NewMockUserRepository(t)
+			mUserRepo := mocks.NewMockUserRepository(t)
+			mPWHasher := mocks.NewMockPasswordHasher(t)
 			if tt.setupMock != nil {
-				tt.setupMock(m)
+				tt.setupMock(mUserRepo)
 			}
 
-			svc := application.NewUserService(testutils.StubTx{}, m)
+			svc := application.NewUserService(testutils.StubTx{}, mUserRepo, mPWHasher)
 			updatedUser, err := svc.UpdateContact(context.Background(), tt.username, contact)
 
 			if tt.wantErr != nil {
@@ -84,29 +87,49 @@ func TestUpdateContact(t *testing.T) {
 }
 
 type registerUserTestCase struct {
-	name      string
-	username  domain.Username
-	setupMock func(*mocks.MockUserRepository)
-	wantErr   error
+	name          string
+	username      domain.Username
+	plainPassword string
+	setupMock     func(
+		*mocks.MockUserRepository,
+		*mocks.MockPasswordHasher,
+	)
+	wantErr error
 }
 
 func registerUserTestCases() []registerUserTestCase {
 	username, _ := domain.NewUsername("test-user")
-	repoErr := errors.New(domain.ErrDB)
+	plainPassword := "plain-password"
+	hashedPassword := "hashed-password"
+	passwordHash, _ := domain.NewPasswordHash(hashedPassword)
+
+	findUserErr := errors.New(domain.ErrDB)
+	hashPasswordErr := errors.New("failed to hash password")
+	saveUserErr := errors.New(domain.ErrDB)
 
 	return []registerUserTestCase{
 		{
-			name:     "success",
-			username: username,
-			setupMock: func(m *mocks.MockUserRepository) {
-				m.EXPECT().
-					ExistsByUsername(mock.Anything, mock.Anything).
+			name:          "success",
+			username:      username,
+			plainPassword: plainPassword,
+			setupMock: func(
+				userRepo *mocks.MockUserRepository,
+				pwHasher *mocks.MockPasswordHasher,
+			) {
+				userRepo.EXPECT().
+					ExistsByUsername(mock.Anything, username).
 					Return(false, nil).
 					Once()
 
-				m.EXPECT().
+				pwHasher.EXPECT().
+					Hash(plainPassword).
+					Return(hashedPassword, nil).
+					Once()
+
+				userRepo.EXPECT().
 					Save(mock.Anything, mock.MatchedBy(func(user domain.User) bool {
-						return user.Username == username
+						return user.Username == username &&
+							user.PasswordHash == passwordHash
 					})).
 					Return(nil).
 					Once()
@@ -114,20 +137,64 @@ func registerUserTestCases() []registerUserTestCase {
 			wantErr: nil,
 		},
 		{
-			name:     "repository error",
-			username: username,
-			setupMock: func(m *mocks.MockUserRepository) {
-				m.EXPECT().
-					ExistsByUsername(mock.Anything, mock.Anything).
+			name:          "user lookup failure",
+			username:      username,
+			plainPassword: plainPassword,
+			setupMock: func(
+				userRepo *mocks.MockUserRepository,
+				_ *mocks.MockPasswordHasher,
+			) {
+				userRepo.EXPECT().
+					ExistsByUsername(mock.Anything, username).
+					Return(false, findUserErr).
+					Once()
+			},
+			wantErr: findUserErr,
+		},
+		{
+			name:          "password hash failure",
+			username:      username,
+			plainPassword: plainPassword,
+			setupMock: func(
+				userRepo *mocks.MockUserRepository,
+				pwHasher *mocks.MockPasswordHasher,
+			) {
+				userRepo.EXPECT().
+					ExistsByUsername(mock.Anything, username).
 					Return(false, nil).
 					Once()
 
-				m.EXPECT().
-					Save(mock.Anything, mock.Anything).
-					Return(repoErr).
+				pwHasher.EXPECT().
+					Hash(plainPassword).
+					Return("", hashPasswordErr).
 					Once()
 			},
-			wantErr: repoErr,
+			wantErr: hashPasswordErr,
+		},
+		{
+			name:          "user save failure",
+			username:      username,
+			plainPassword: plainPassword,
+			setupMock: func(
+				userRepo *mocks.MockUserRepository,
+				pwHasher *mocks.MockPasswordHasher,
+			) {
+				userRepo.EXPECT().
+					ExistsByUsername(mock.Anything, username).
+					Return(false, nil).
+					Once()
+
+				pwHasher.EXPECT().
+					Hash(plainPassword).
+					Return(hashedPassword, nil).
+					Once()
+
+				userRepo.EXPECT().
+					Save(mock.Anything, mock.Anything).
+					Return(saveUserErr).
+					Once()
+			},
+			wantErr: saveUserErr,
 		},
 	}
 }
@@ -142,15 +209,16 @@ type findUserByUsernameTestCase struct {
 
 func findUserByUsernameTestCases() []findUserByUsernameTestCase {
 	username, _ := domain.NewUsername("test-user")
-	user := domain.NewUser(username)
+	passwordHash, _ := domain.NewPasswordHash("hashed-password")
+	user := domain.NewUser(username, passwordHash)
 	userNotFound := errors.New(domain.ErrUserNotFound)
 
 	return []findUserByUsernameTestCase{
 		{
 			name:     "success",
 			username: username,
-			setupMock: func(m *mocks.MockUserRepository) {
-				m.EXPECT().
+			setupMock: func(userRepo *mocks.MockUserRepository) {
+				userRepo.EXPECT().
 					FindByUsername(mock.Anything, username).
 					Return(user, nil).
 					Once()
@@ -161,8 +229,8 @@ func findUserByUsernameTestCases() []findUserByUsernameTestCase {
 		{
 			name:     "user not found",
 			username: username,
-			setupMock: func(m *mocks.MockUserRepository) {
-				m.EXPECT().
+			setupMock: func(userRepo *mocks.MockUserRepository) {
+				userRepo.EXPECT().
 					FindByUsername(mock.Anything, username).
 					Return(nil, userNotFound).
 					Once()
@@ -183,41 +251,66 @@ type updateContactTestCase struct {
 
 func updateContactTestCases() []updateContactTestCase {
 	username, _ := domain.NewUsername("test-user")
-	user := domain.NewUser(username)
+	passwordHash, _ := domain.NewPasswordHash("hashed-password")
+	contact, _ := domain.NewContact("017-1234-2345", "gochat@example.com")
+
+	successUser := domain.NewUser(username, passwordHash)
+	wantSuccessUser := *successUser
+	_ = wantSuccessUser.UpdateContact(contact)
+
+	updateFailureUser := domain.NewUser(username, passwordHash)
+	wantUpdateFailureUser := *updateFailureUser
+	_ = wantUpdateFailureUser.UpdateContact(contact)
+
 	userNotFound := errors.New(domain.ErrUserNotFound)
+	updateUserErr := errors.New(domain.ErrDB)
 
 	return []updateContactTestCase{
 		{
 			name:     "success",
 			username: username,
-			setupMock: func(m *mocks.MockUserRepository) {
-				user.Contact.PhoneNumber.Value = "017-1234-2345"
-				user.Contact.Email.Value = "gochat@example.com"
-
-				m.EXPECT().
-					FindByUsername(mock.Anything, mock.Anything).
-					Return(user, nil).
+			setupMock: func(userRepo *mocks.MockUserRepository) {
+				userRepo.EXPECT().
+					FindByUsername(mock.Anything, username).
+					Return(successUser, nil).
 					Once()
 
-				m.EXPECT().
-					Update(mock.Anything, *user).
+				userRepo.EXPECT().
+					Update(mock.Anything, wantSuccessUser).
 					Return(nil).
 					Once()
 			},
-			wantUser: user,
+			wantUser: &wantSuccessUser,
 			wantErr:  nil,
 		},
 		{
 			name:     "user not found",
 			username: username,
-			setupMock: func(m *mocks.MockUserRepository) {
-				m.EXPECT().
+			setupMock: func(userRepo *mocks.MockUserRepository) {
+				userRepo.EXPECT().
 					FindByUsername(mock.Anything, username).
 					Return(nil, userNotFound).
 					Once()
 			},
 			wantUser: nil,
 			wantErr:  userNotFound,
+		},
+		{
+			name:     "user update failure",
+			username: username,
+			setupMock: func(userRepo *mocks.MockUserRepository) {
+				userRepo.EXPECT().
+					FindByUsername(mock.Anything, username).
+					Return(updateFailureUser, nil).
+					Once()
+
+				userRepo.EXPECT().
+					Update(mock.Anything, wantUpdateFailureUser).
+					Return(updateUserErr).
+					Once()
+			},
+			wantUser: nil,
+			wantErr:  updateUserErr,
 		},
 	}
 }
