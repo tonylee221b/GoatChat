@@ -40,6 +40,72 @@ func (_m *MockSessionRepository) EXPECT() *MockSessionRepository_Expecter {
 	return &MockSessionRepository_Expecter{mock: &_m.Mock}
 }
 
+// ExistsByUserID provides a mock function for the type MockSessionRepository
+func (_mock *MockSessionRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
+	ret := _mock.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExistsByUserID")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (bool, error)); ok {
+		return returnFunc(ctx, userID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) bool); ok {
+		r0 = returnFunc(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockSessionRepository_ExistsByUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExistsByUserID'
+type MockSessionRepository_ExistsByUserID_Call struct {
+	*mock.Call
+}
+
+// ExistsByUserID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+func (_e *MockSessionRepository_Expecter) ExistsByUserID(ctx any, userID any) *MockSessionRepository_ExistsByUserID_Call {
+	return &MockSessionRepository_ExistsByUserID_Call{Call: _e.mock.On("ExistsByUserID", ctx, userID)}
+}
+
+func (_c *MockSessionRepository_ExistsByUserID_Call) Run(run func(ctx context.Context, userID uuid.UUID)) *MockSessionRepository_ExistsByUserID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uuid.UUID
+		if args[1] != nil {
+			arg1 = args[1].(uuid.UUID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockSessionRepository_ExistsByUserID_Call) Return(b bool, err error) *MockSessionRepository_ExistsByUserID_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockSessionRepository_ExistsByUserID_Call) RunAndReturn(run func(ctx context.Context, userID uuid.UUID) (bool, error)) *MockSessionRepository_ExistsByUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // FindByRefreshTokenHash provides a mock function for the type MockSessionRepository
 func (_mock *MockSessionRepository) FindByRefreshTokenHash(ctx context.Context, rtHash domain.RefreshTokenHash) (*domain.Session, error) {
 	ret := _mock.Called(ctx, rtHash)

@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -59,6 +60,15 @@ func (a *AuthService) Login(ctx context.Context, username domain.Username, plain
 		return TokenPair{}, err
 	}
 
+	sessionAlreadyExist, err := a.sessionRepo.ExistsByUserID(ctx, ufd.ID)
+	if err != nil {
+		return TokenPair{}, err
+	}
+
+	if sessionAlreadyExist {
+		return TokenPair{}, errors.New("session already exists")
+	}
+
 	generatedRT, err := generateRefreshToken()
 	if err != nil {
 		return TokenPair{}, err
@@ -84,7 +94,6 @@ func (a *AuthService) Login(ctx context.Context, username domain.Username, plain
 	}
 
 	if err := a.sessionRepo.Save(ctx, *session); err != nil {
-		// TODO: Revoke Access Token created above
 		return TokenPair{}, err
 	}
 

@@ -125,6 +125,12 @@ func (r *SessionPgRepository) UpdateRefreshTokenHash(ctx context.Context, sessio
 	return nil
 }
 
+func (r *SessionPgRepository) ExistsByUserID(ctx context.Context, userID uuid.UUID) (bool, error) {
+	q := r.queries(ctx)
+
+	return q.ExistsByUserID(ctx, identitysqlc.ExistsByUserIDParams{UserID: userID})
+}
+
 func (r *SessionPgRepository) queries(ctx context.Context) *identitysqlc.Queries {
 	return identitysqlc.New(r.db(ctx))
 }
