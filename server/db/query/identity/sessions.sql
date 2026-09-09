@@ -38,3 +38,8 @@ WHERE id = sqlc.arg(id)
   AND revoked_at IS NULL
   AND expires_at > now()
 RETURNING *;
+
+-- name: ExistsByUserID :one
+SELECT EXISTS(
+  SELECT 1 FROM sessions where user_id = sqlc.arg(user_id)
+);

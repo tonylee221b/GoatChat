@@ -57,6 +57,23 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 	return i, err
 }
 
+const existsByUserID = `-- name: ExistsByUserID :one
+SELECT EXISTS(
+  SELECT 1 FROM sessions where user_id = $1
+)
+`
+
+type ExistsByUserIDParams struct {
+	UserID uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) ExistsByUserID(ctx context.Context, arg ExistsByUserIDParams) (bool, error) {
+	row := q.db.QueryRow(ctx, existsByUserID, arg.UserID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const findByRefreshTokenHash = `-- name: FindByRefreshTokenHash :one
 SELECT id, user_id, refresh_token_hash, expires_at, revoked_at, created_at
 FROM sessions s

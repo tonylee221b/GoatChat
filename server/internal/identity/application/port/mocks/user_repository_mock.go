@@ -72,7 +72,7 @@ type MockUserRepository_ExistsByUsername_Call struct {
 // ExistsByUsername is a helper method to define mock.On call
 //   - ctx context.Context
 //   - username domain.Username
-func (_e *MockUserRepository_Expecter) ExistsByUsername(ctx interface{}, username interface{}) *MockUserRepository_ExistsByUsername_Call {
+func (_e *MockUserRepository_Expecter) ExistsByUsername(ctx any, username any) *MockUserRepository_ExistsByUsername_Call {
 	return &MockUserRepository_ExistsByUsername_Call{Call: _e.mock.On("ExistsByUsername", ctx, username)}
 }
 
@@ -140,7 +140,7 @@ type MockUserRepository_FindByUsername_Call struct {
 // FindByUsername is a helper method to define mock.On call
 //   - ctx context.Context
 //   - username domain.Username
-func (_e *MockUserRepository_Expecter) FindByUsername(ctx interface{}, username interface{}) *MockUserRepository_FindByUsername_Call {
+func (_e *MockUserRepository_Expecter) FindByUsername(ctx any, username any) *MockUserRepository_FindByUsername_Call {
 	return &MockUserRepository_FindByUsername_Call{Call: _e.mock.On("FindByUsername", ctx, username)}
 }
 
@@ -197,7 +197,7 @@ type MockUserRepository_Save_Call struct {
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
 //   - user domain.User
-func (_e *MockUserRepository_Expecter) Save(ctx interface{}, user interface{}) *MockUserRepository_Save_Call {
+func (_e *MockUserRepository_Expecter) Save(ctx any, user any) *MockUserRepository_Save_Call {
 	return &MockUserRepository_Save_Call{Call: _e.mock.On("Save", ctx, user)}
 }
 
@@ -254,7 +254,7 @@ type MockUserRepository_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - user domain.User
-func (_e *MockUserRepository_Expecter) Update(ctx interface{}, user interface{}) *MockUserRepository_Update_Call {
+func (_e *MockUserRepository_Expecter) Update(ctx any, user any) *MockUserRepository_Update_Call {
 	return &MockUserRepository_Update_Call{Call: _e.mock.On("Update", ctx, user)}
 }
 

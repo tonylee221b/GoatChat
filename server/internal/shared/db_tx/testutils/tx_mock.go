@@ -62,7 +62,7 @@ type MockTx_WithinTx_Call struct {
 // WithinTx is a helper method to define mock.On call
 //   - ctx context.Context
 //   - fn func(ctx context.Context) error
-func (_e *MockTx_Expecter) WithinTx(ctx interface{}, fn interface{}) *MockTx_WithinTx_Call {
+func (_e *MockTx_Expecter) WithinTx(ctx any, fn any) *MockTx_WithinTx_Call {
 	return &MockTx_WithinTx_Call{Call: _e.mock.On("WithinTx", ctx, fn)}
 }
 

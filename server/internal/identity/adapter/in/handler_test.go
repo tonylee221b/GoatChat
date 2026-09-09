@@ -659,6 +659,11 @@ func loginTestCases() []loginTestCase {
 					Return(nil).
 					Once()
 
+				sessionRepo.EXPECT().
+					ExistsByUserID(mock.Anything, user.ID).
+					Return(false, nil).
+					Once()
+
 				accessTokenManager.EXPECT().
 					Issue(user.ID.String(), mock.Anything).
 					Return(accessToken, nil).
@@ -734,6 +739,32 @@ func loginTestCases() []loginTestCase {
 			wantStatus: http.StatusUnauthorized,
 		},
 		{
+			name: "session already exists",
+			body: validBody,
+			setupMock: func(
+				userRepo *mocks.MockUserRepository,
+				sessionRepo *mocks.MockSessionRepository,
+				pwHasher *mocks.MockPasswordHasher,
+				_ *mocks.MockAccessTokenManager,
+			) {
+				userRepo.EXPECT().
+					FindByUsername(mock.Anything, username).
+					Return(user, nil).
+					Once()
+
+				pwHasher.EXPECT().
+					Compare(passwordHash.Value, plainPassword).
+					Return(nil).
+					Once()
+
+				sessionRepo.EXPECT().
+					ExistsByUserID(mock.Anything, user.ID).
+					Return(true, nil).
+					Once()
+			},
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
 			name: "session save failure",
 			body: validBody,
 			setupMock: func(
@@ -750,6 +781,11 @@ func loginTestCases() []loginTestCase {
 				pwHasher.EXPECT().
 					Compare(passwordHash.Value, plainPassword).
 					Return(nil).
+					Once()
+
+				sessionRepo.EXPECT().
+					ExistsByUserID(mock.Anything, user.ID).
+					Return(false, nil).
 					Once()
 
 				accessTokenManager.EXPECT().

@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	ExistsByUserID(ctx context.Context, arg ExistsByUserIDParams) (bool, error)
 	ExistsUserByUsername(ctx context.Context, arg ExistsUserByUsernameParams) (bool, error)
 	FindByRefreshTokenHash(ctx context.Context, arg FindByRefreshTokenHashParams) (Session, error)
 	FindByRefreshTokenHashForUpdate(ctx context.Context, arg FindByRefreshTokenHashForUpdateParams) (Session, error)

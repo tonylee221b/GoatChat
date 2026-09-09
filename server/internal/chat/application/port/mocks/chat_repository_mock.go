@@ -64,7 +64,7 @@ type MockChatRepository_Delete_Call struct {
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - cId uuid.UUID
-func (_e *MockChatRepository_Expecter) Delete(ctx interface{}, cId interface{}) *MockChatRepository_Delete_Call {
+func (_e *MockChatRepository_Expecter) Delete(ctx any, cId any) *MockChatRepository_Delete_Call {
 	return &MockChatRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, cId)}
 }
 
@@ -121,7 +121,7 @@ type MockChatRepository_ExistsByChatroomId_Call struct {
 // ExistsByChatroomId is a helper method to define mock.On call
 //   - ctx context.Context
 //   - cId uuid.UUID
-func (_e *MockChatRepository_Expecter) ExistsByChatroomId(ctx interface{}, cId interface{}) *MockChatRepository_ExistsByChatroomId_Call {
+func (_e *MockChatRepository_Expecter) ExistsByChatroomId(ctx any, cId any) *MockChatRepository_ExistsByChatroomId_Call {
 	return &MockChatRepository_ExistsByChatroomId_Call{Call: _e.mock.On("ExistsByChatroomId", ctx, cId)}
 }
 
@@ -189,7 +189,7 @@ type MockChatRepository_FindByChatroomId_Call struct {
 // FindByChatroomId is a helper method to define mock.On call
 //   - ctx context.Context
 //   - cId uuid.UUID
-func (_e *MockChatRepository_Expecter) FindByChatroomId(ctx interface{}, cId interface{}) *MockChatRepository_FindByChatroomId_Call {
+func (_e *MockChatRepository_Expecter) FindByChatroomId(ctx any, cId any) *MockChatRepository_FindByChatroomId_Call {
 	return &MockChatRepository_FindByChatroomId_Call{Call: _e.mock.On("FindByChatroomId", ctx, cId)}
 }
 
@@ -246,7 +246,7 @@ type MockChatRepository_Save_Call struct {
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
 //   - cr domain.ChatRoom
-func (_e *MockChatRepository_Expecter) Save(ctx interface{}, cr interface{}) *MockChatRepository_Save_Call {
+func (_e *MockChatRepository_Expecter) Save(ctx any, cr any) *MockChatRepository_Save_Call {
 	return &MockChatRepository_Save_Call{Call: _e.mock.On("Save", ctx, cr)}
 }
 
@@ -303,7 +303,7 @@ type MockChatRepository_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - cr domain.ChatRoom
-func (_e *MockChatRepository_Expecter) Update(ctx interface{}, cr interface{}) *MockChatRepository_Update_Call {
+func (_e *MockChatRepository_Expecter) Update(ctx any, cr any) *MockChatRepository_Update_Call {
 	return &MockChatRepository_Update_Call{Call: _e.mock.On("Update", ctx, cr)}
 }
 
